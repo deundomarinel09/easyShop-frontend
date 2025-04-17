@@ -1,12 +1,12 @@
 import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext'; // Import useCart to access the clearCart function
 import { fetchLogin, fetchCreateAccount } from '../apiData/login'; // adjust path if needed
-
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-
+  const { clearCart } = useCart(); // Get the clearCart function from CartContext
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
@@ -19,43 +19,48 @@ export function AuthProvider({ children }) {
       const res = await fetchLogin({ email, password });
       const userData = res.data;
 
+      // Store full user data in localStorage
+      const fullUserData = {
+        id: userData.id,
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+      };
 
-      const isAdmin = userData?.role === "admin";
-
-      setUser({ email: userData.email, isAdmin });
-      localStorage.setItem('user', JSON.stringify({ email: userData.email, isAdmin }));
-      navigate('/');
+      setUser(fullUserData);
+      localStorage.setItem('user', JSON.stringify(fullUserData));
+      navigate('/');  // Redirect after successful login
       return true;
     } catch (err) {
       return false;
     }
   };
+
   const signup = async (email, password) => {
     try {
       const newUser = {
-        name: email.split('@')[0],
+        name: email.split('@')[0],  // Just an example of setting name
         email,
         passwordhash: password,
         createdate: new Date().toISOString(),
-        role: "user"
+        role: "user",  // Default role, modify as needed
       };
 
       const res = await fetchCreateAccount(newUser);
       const userData = res.data;
 
-      navigate('/login');
+      navigate('/login');  // Redirect after successful sign up
       return { success: true };
-
     } catch (err) {
       const errorMsg = err.response?.data || err.message || 'SignUp failed.';
-      return { success: false, message: errorMsg };  // Return the error message
+      return { success: false, message: errorMsg };
     }
   };
-
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    clearCart(); // Call clearCart to remove cart items
     navigate('/login');
   };
 

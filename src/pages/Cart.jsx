@@ -15,24 +15,24 @@ export default function Cart() {
   }
 
   return (
-    <div>
-      <h2 className="text-3xl font-bold mb-8">Shopping Cart</h2>
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <h2 className="text-3xl font-bold mb-8 text-center">Shopping Cart</h2>
       <div className="bg-white rounded-lg shadow-md p-6">
         {cart.map((item) => (
-          <div key={item.id} className="flex items-center py-4 border-b">
+          <div key={item.id} className="flex items-center py-4 border-b last:border-0">
             <img
-              src={item.image}
+              src={item.image} // Ensure the image path is being used
               alt={item.name}
               className="w-24 h-24 object-cover rounded"
             />
             <div className="flex-1 ml-4">
               <h3 className="text-lg font-semibold">{item.name}</h3>
-              <p className="text-gray-600">${item.price}</p>
+              <p className="text-gray-600">₱ {item.price}</p>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center space-x-2">
               <button
                 onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                className="px-2 py-1 border rounded-l"
+                className="px-2 py-1 border rounded-l bg-gray-200 hover:bg-gray-300"
               >
                 -
               </button>
@@ -41,7 +41,7 @@ export default function Cart() {
               </span>
               <button
                 onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                className="px-2 py-1 border rounded-r"
+                className="px-2 py-1 border rounded-r bg-gray-200 hover:bg-gray-300"
               >
                 +
               </button>
@@ -56,7 +56,7 @@ export default function Cart() {
         ))}
         <div className="mt-8 flex justify-between items-center">
           <span className="text-2xl font-bold">
-            Total: ${total.toFixed(2)}
+            Total: ₱ {total.toFixed(2)}
           </span>
           <Link
             to="/checkout"

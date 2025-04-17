@@ -1,19 +1,25 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const navigate = useNavigate(); // Hook for programmatic navigation
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const success = await login(email, password);
     if (!success) {
       setError('Invalid credentials');
+    } else {
+      navigate('/'); // Redirect to home page on successful login
     }
+    setLoading(false);
   };
 
   return (
@@ -54,8 +60,9 @@ export default function Login() {
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          disabled={loading} // Disable button while loading
         >
-          Login
+          {loading ? 'Logging in...' : 'Login'}
         </button>
         <p className="mt-4 text-center text-gray-600">
           Don't have an account?{' '}

@@ -13,9 +13,11 @@
   "dependencies": {
     "@heroicons/react": "^2.1.1",
     "axios": "^1.8.4",
+    "formik": "^2.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^6.22.1"
+    "react-router-dom": "^7.5.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
