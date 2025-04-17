@@ -3,8 +3,8 @@
 import axios from 'axios';
 
 // Define the endpoint URL
-const url = 'https://localhost:7066/api/product/productByCategories';
-//const url = 'https://mobileeasyshop.onrender.com/api/product/productByCategories';
+//const url = 'https://localhost:7066/api/product/productByCategories';
+const url = 'https://mobileeasyshop.onrender.com/api/product/productByCategories';
 
 // Function to get products by categories
 export async function getProductsByCategories() {
