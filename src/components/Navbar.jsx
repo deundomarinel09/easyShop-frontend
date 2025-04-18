@@ -84,7 +84,7 @@ export default function Navbar() {
             {/* User-specific Links */}
             {user ? (
               <div className="flex items-center space-x-4">
-                <span className="text-gray-600">{user.email}</span>
+                <span className="text-blue-600 font-semibold">{user.email}</span> {/* Blue email with bold font */}
                 {user.isAdmin && (
                   <Link
                     to="/admin"
@@ -95,10 +95,10 @@ export default function Navbar() {
                 )}
                 <button
                   onClick={logout}
-                  className="text-gray-600 hover:text-gray-900 transition-all duration-300 transform hover:scale-110"
+                  className="text-red-600 hover:text-red-800 transition-all duration-300 transform hover:scale-110"
                 >
                   Logout
-                </button>
+                </button> {/* Red logout button */}
               </div>
             ) : (
               <div className="flex items-center space-x-4">
