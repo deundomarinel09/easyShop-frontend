@@ -3,19 +3,17 @@
 import axios from 'axios';
 
 // Define the endpoint URL
-//const url = 'https://localhost:7066/api/product/productByCategories';
-const url = 'https://mobileeasyshop.onrender.com/api/product/productByCategories';
+const baseLocal = 'https://localhost:7066';
+const baseProd = 'https://mobileeasyshop.onrender.com';
+const getProductsUrl = '/api/Product/GetAllProduct';
 
 // Function to get products by categories
-export async function getProductsByCategories() {
+export async function getProducts() {
   try {
-    // Make the GET request
-    const response = await axios.get(url);
+    const response = await axios.get(`${baseLocal}${getProductsUrl}`);
 
-    // Return the data if successful
     return response.data;
   } catch (error) {
-    // Handle error response
     throw error;
   }
 }

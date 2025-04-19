@@ -1,5 +1,6 @@
+// src/components/Orders.js
 import { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
+import { fetchOrders } from '../apiData/orders';
 
 function areOrdersEqual(prevOrders, newOrders) {
   if (prevOrders.length !== newOrders.length) return false;
@@ -25,29 +26,22 @@ export default function Orders() {
   useEffect(() => {
     if (!user) return;
 
-    const fetchOrders = async () => {
-      try {
-        const response = await axios.post('https://mobileeasyshop.onrender.com/api/Order/GetOrderById', {
-          userId: user.id,
-        });
+    const fetchOrdersData = async () => {
+      setLoading(true);
+      const { orders: fetchedOrders, error: fetchError } = await fetchOrders(user.id);
 
-        if (response.data === "No orders found for the user.") {
-          setOrders([]);
-          setError("No orders found for the user.");
-        } else {
-          const normalizedOrders = response.data?.$values || [];
-          setOrders((prev) => {
-            return areOrdersEqual(prev, normalizedOrders) ? prev : normalizedOrders;
-          });
-        }
-      } catch (err) {
-        setError(`Failed to load orders. ${err.response.data}`);
-      } finally {
-        setLoading(false);
+      if (fetchError) {
+        setError(fetchError);
+      } else {
+        setOrders((prev) => {
+          return areOrdersEqual(prev, fetchedOrders) ? prev : fetchedOrders;
+        });
       }
+
+      setLoading(false);
     };
 
-    fetchOrders();
+    fetchOrdersData();
   }, [user]);
 
   const renderedOrders = useMemo(() => {
@@ -77,9 +71,14 @@ export default function Orders() {
             <div className="text-lg font-bold text-blue-600">₱ {order.total.toFixed(2)}</div>
           </div>
           <div>
-            <div className="text-gray-600 font-medium">Shipping To:</div>
+            <div className="text-gray-600 font-medium">Shipping To Details:</div>
             <div className="text-gray-800">
-              {order.name}, {order.shippingAddress}
+            <div className="text-gray-800">
+              NAME: {order.name}    
+            </div> 
+            <div className="text-gray-800">
+            ADDRESS: {order.shippingAddress}
+            </div> 
             </div>
           </div>
         </div>
