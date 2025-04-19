@@ -25,11 +25,12 @@ export default function Orders() {
 
   useEffect(() => {
     if (!user) return;
-
+  
+    let intervalId;
+  
     const fetchOrdersData = async () => {
-      setLoading(true);
       const { orders: fetchedOrders, error: fetchError } = await fetchOrders(user.id);
-
+  
       if (fetchError) {
         setError(fetchError);
       } else {
@@ -37,12 +38,19 @@ export default function Orders() {
           return areOrdersEqual(prev, fetchedOrders) ? prev : fetchedOrders;
         });
       }
-
+  
       setLoading(false);
     };
-
+  
+    // Fetch immediately on mount
     fetchOrdersData();
+  
+    // Set interval for polling
+    intervalId = setInterval(fetchOrdersData, 10000); // every 10 seconds
+  
+    return () => clearInterval(intervalId); // Cleanup on unmount
   }, [user]);
+  
 
   const renderedOrders = useMemo(() => {
     return orders.map((order, index) => (
