@@ -63,6 +63,11 @@ console.log("productsData",productsData);
   
 
   const handleAddToCart = (product) => {
+    if(product.stock == 0)
+    {
+      alert("out of stock")
+    }else
+    {
     const categoryFolder = normalizeCategoryName(product.categoryName);
     const imageFile = ensureJpg(product.image);
     const imageUrl = `${baseUrl}${encodeURIComponent(imageFile)}`;
@@ -70,6 +75,7 @@ console.log("productsData",productsData);
     console.log("imageUrl",imageUrl);
     addToCart({ ...product, image: imageUrl });
     setAddedProductIds((prev) => [...prev, product.id]);
+    }
   };
 
   return (
@@ -130,6 +136,7 @@ console.log("productsData",productsData);
                     </span>
                   </div>
                   <p className="text-gray-600 mb-4">{product.description}</p>
+                  <p className="text-gray-600 mb-4">{product.stock} in stock</p>
                   <div className="flex justify-between items-center">
                     <span className="text-xl font-bold">₱ {product.price}</span>
                     <button

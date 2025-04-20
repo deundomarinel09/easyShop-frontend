@@ -28,6 +28,7 @@ export default function Cart() {
             <div className="flex-1 ml-4">
               <h3 className="text-lg font-semibold">{item.name}</h3>
               <p className="text-gray-600">₱ {item.price}</p>
+              <p className="text-gray-600">{item.stock} in stock</p>
             </div>
             <div className="flex items-center space-x-2">
               <button
@@ -40,11 +41,17 @@ export default function Cart() {
                 {item.quantity}
               </span>
               <button
-                onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                className="px-2 py-1 border rounded-r bg-gray-200 hover:bg-gray-300"
-              >
-                +
-              </button>
+  onClick={() => {
+    if (item.quantity < item.stock) {
+      updateQuantity(item.id, item.quantity + 1);
+    }
+  }}
+  className={`px-2 py-1 border rounded-r ${item.quantity >= item.stock ? 'bg-gray-300 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'}`}
+  disabled={item.quantity >= item.stock}
+>
+  +
+</button>
+
             </div>
             <button
               onClick={() => removeFromCart(item.id)}

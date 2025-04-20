@@ -47,7 +47,9 @@ export default function Checkout() {
     };
 
     try {
-      const response = await axios.post('https://mobileeasyshop.onrender.com/api/Order/PlaceOrder', orderPayload);
+      const baseProd = "https://mobileeasyshop.onrender.com";
+      const testUrl = "https://localhost:7066"
+      const response = await axios.post(`${testUrl}/api/Order/PlaceOrder`, orderPayload);
 
       alert('Order placed successfully!');
       clearCart();
