@@ -34,7 +34,13 @@ export default function Products() {
     }
 
     fetchProducts();
-  }, []);
+
+    // Set up polling to fetch products every 30 seconds
+    const intervalId = setInterval(fetchProducts, 30000); // 30 seconds
+
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []); // Empty dependency array ensures this effect runs only once on mount
 
   const normalizeCategoryName = (name) =>
     name?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') || '';
@@ -46,35 +52,30 @@ export default function Products() {
 
   // Assuming categoryName is populated, create unique categories
   const categories = ['All', ...Array.from(new Set(productsData.map((product) => product.category || 'Uncategorized')))];
-console.log("productsData",productsData);
 
   const filteredProducts = productsData.filter((product) => {
     const matchesCategory =
       selectedCategory === 'All' ||
       (selectedCategory === 'Uncategorized' && !product.category) || // handle products with no category
       product.category === selectedCategory;
-  
+
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-  
+
     return matchesCategory && matchesSearch;
   });
-  
 
   const handleAddToCart = (product) => {
-    if(product.stock == 0)
-    {
-      alert("out of stock")
-    }else
-    {
-    const categoryFolder = normalizeCategoryName(product.categoryName);
-    const imageFile = ensureJpg(product.image);
-    const imageUrl = `${baseUrl}${encodeURIComponent(imageFile)}`;
+    if (product.stock == 0) {
+      alert('Out of stock');
+    } else {
+      const categoryFolder = normalizeCategoryName(product.categoryName);
+      const imageFile = ensureJpg(product.image);
+      const imageUrl = `${baseUrl}${encodeURIComponent(imageFile)}`;
 
-    console.log("imageUrl",imageUrl);
-    addToCart({ ...product, image: imageUrl });
-    setAddedProductIds((prev) => [...prev, product.id]);
+      addToCart({ ...product, image: imageUrl });
+      setAddedProductIds((prev) => [...prev, product.id]);
     }
   };
 
@@ -117,14 +118,13 @@ console.log("productsData",productsData);
           {filteredProducts.map((product) => {
             const categoryFolder = normalizeCategoryName(product.categoryName);
             const imageFile = ensureJpg(product.image);
-            const imageUrl = `${baseUrl}/${imageFile.replace("product-images", "")}`;
-            console.log(`imageUrl testing ${product.name}`,imageUrl.replace(".jpg",""));
+            const imageUrl = `${baseUrl}/${imageFile.replace('product-images', '')}`;
             const isAdded = addedProductIds.includes(product.id);
 
             return (
               <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <img
-                  src={imageUrl.replace(".jpg","")}
+                  src={imageUrl.replace('.jpg', '')}
                   alt={product.name}
                   className="w-full h-48 object-cover"
                 />
