@@ -27,9 +27,7 @@ import {
         {
           path: "products",
           element: (
-            <ProtectedRoute>
               <Products />
-            </ProtectedRoute>
           ),
         },
         {

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { getProducts } from '../apiData/products';
+import { useAuth } from '../context/AuthContext';  // Import the AuthContext
 
 export default function Products() {
   const { addToCart } = useCart();
+  const { user } = useAuth();  // Get the user from AuthContext
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [productsData, setProductsData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -67,6 +69,11 @@ export default function Products() {
   });
 
   const handleAddToCart = (product) => {
+    if (!user) {
+      alert('You need to log in to add products to your cart.');
+      return;
+    }
+
     if (product.stock == 0) {
       alert('Out of stock');
     } else {
