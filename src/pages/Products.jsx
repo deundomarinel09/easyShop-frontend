@@ -74,7 +74,7 @@ export default function Products() {
       return;
     }
 
-    if (product.stock == 0) {
+    if (product.stock < 1) {
       alert('Out of stock');
     } else {
       const categoryFolder = normalizeCategoryName(product.categoryName);
