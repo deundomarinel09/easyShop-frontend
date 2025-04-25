@@ -23,8 +23,13 @@ export default function Products() {
       try {
         const data = await getProducts();
         if (data && Array.isArray(data.$values)) {
-          setProductsData(data.$values);
-          sessionStorage.setItem('productsData', JSON.stringify(data.$values));
+          const newProducts = data.$values;
+
+          // Only update state if the data has changed
+          if (JSON.stringify(newProducts) !== JSON.stringify(productsData)) {
+            setProductsData(newProducts);
+            sessionStorage.setItem('productsData', JSON.stringify(newProducts));
+          }
         } else {
           console.error('API response is not in the expected format:', data);
         }
@@ -42,7 +47,7 @@ export default function Products() {
 
     // Clean up the interval when the component unmounts
     return () => clearInterval(intervalId);
-  }, []); // Empty dependency array ensures this effect runs only once on mount
+  }, []);  // Empty dependency array to ensure this runs only once on mount
 
   const normalizeCategoryName = (name) =>
     name?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') || '';

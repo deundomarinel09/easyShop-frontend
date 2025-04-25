@@ -1,14 +1,8 @@
-// src/components/Orders.js
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { fetchOrders } from '../apiData/orders';
 import { CheckCircle, Package, TruckIcon, Clock, XCircle } from 'lucide-react';
 
-function areOrdersEqual(prevOrders, newOrders) {
-  if (prevOrders.length !== newOrders.length) return false;
-  return prevOrders.every((prev, idx) => JSON.stringify(prev) === JSON.stringify(newOrders[idx]));
-}
-
-const getStatusIcon = (status) => {
+function getStatusIcon(status) {
   switch (status) {
     case "Completed":
       return <CheckCircle className="h-5 w-5 text-green-500 mr-1" />;
@@ -23,7 +17,7 @@ const getStatusIcon = (status) => {
     default:
       return null;
   }
-};
+}
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -31,7 +25,10 @@ export default function Orders() {
   const [error, setError] = useState('');
   const [user, setUser] = useState(null);
   const [filter, setFilter] = useState('All');
-
+  
+  // Ref to keep track of previous orders to compare
+  const prevOrdersRef = useRef([]);
+  
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser) {
@@ -41,7 +38,7 @@ export default function Orders() {
       setLoading(false);
     }
   }, []);
-
+  
   useEffect(() => {
     if (!user) return;
 
@@ -53,9 +50,11 @@ export default function Orders() {
       if (fetchError) {
         setError(fetchError);
       } else {
-        setOrders((prev) => {
-          return areOrdersEqual(prev, fetchedOrders) ? prev : fetchedOrders;
-        });
+        // Compare fetched orders with previous orders to prevent unnecessary updates
+        if (!areOrdersEqual(prevOrdersRef.current, fetchedOrders)) {
+          setOrders(fetchedOrders);
+          prevOrdersRef.current = fetchedOrders; // Update the reference for next comparison
+        }
       }
 
       setLoading(false);
@@ -161,4 +160,9 @@ export default function Orders() {
       )}
     </div>
   );
+}
+
+function areOrdersEqual(prevOrders, newOrders) {
+  if (prevOrders.length !== newOrders.length) return false;
+  return prevOrders.every((prev, idx) => JSON.stringify(prev) === JSON.stringify(newOrders[idx]));
 }
