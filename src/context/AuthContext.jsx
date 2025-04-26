@@ -1,4 +1,3 @@
-//AuthContext.jsx
 import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext'; // Import useCart to access the clearCart function
@@ -8,6 +7,7 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const { clearCart } = useCart(); // Get the clearCart function from CartContext
+  
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
@@ -22,8 +22,6 @@ export function AuthProvider({ children }) {
   
       // Check if the server is requesting OTP verification
       if (userData?.message === "OTP sent to email.") {
-        setUser({ email, isOtpRequired: true }); // Set OTP required flag
-        localStorage.setItem('user', JSON.stringify({ email, isOtpRequired: true }));
         return { success: true, step: "otp" }; // Redirect to OTP page
       }
   
@@ -44,8 +42,6 @@ export function AuthProvider({ children }) {
       return { success: false };
     }
   };
-  
-  
 
   const signup = async (email, password, firstName, lastName, phoneNumber) => {
     try {
@@ -73,8 +69,6 @@ export function AuthProvider({ children }) {
       return { success: false, message: errorMsg };
     }
   };
-  
-  
 
   const logout = () => {
     setUser(null);
@@ -84,7 +78,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, signup }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, signup }}>
       {children}
     </AuthContext.Provider>
   );

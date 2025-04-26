@@ -21,8 +21,7 @@ export default function Login() {
       if (response?.success) {
         if (response?.step === 'otp') {
           // OTP required, redirect to OTP page
-          navigate('/otp');
-        } else {
+          navigate('/otp', { state: { email } });        } else {
           // Login complete, no OTP needed
           navigate('/');
         }

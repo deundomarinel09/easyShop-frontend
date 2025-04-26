@@ -2,16 +2,16 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { verifyOtp } from '../apiData/login';
 import { useAuth } from '../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 export default function OtpVerification() {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, setUser } = useAuth(); // Extract setUser from context
   const navigate = useNavigate();
-
-  const storedUser = JSON.parse(localStorage.getItem('user'));
-  const email = user?.email || storedUser?.email;
+  const location = useLocation();
+  const passedEmail = location.state?.email;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,16 +19,26 @@ export default function OtpVerification() {
     setError('');
 
     try {
-      const res = await verifyOtp(email, otp); // use email from context or localStorage
-      if (res?.success) {
-        const updatedUser = { ...storedUser, isOtpRequired: false };
+      const res = await verifyOtp(passedEmail, otp);
+
+      console.log("Raw response from verifyOtp:", res); // LOG the full response
+
+      if (res?.message === "OTP verified") {
+        const updatedUser = { 
+          email: res?.user?.email, 
+          isOtpRequired: false 
+        };
+
+        // Save updated user in AuthContext
+        setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
-        user.isOtpRequired = false;
         navigate('/');
       } else {
-        setError('Invalid or expired OTP.');
+        console.error("OTP verification failed:", res?.message);
+        setError(res?.message || 'Invalid or expired OTP.');
       }
     } catch (err) {
+      console.error("Error during OTP verification:", err);
       setError('Something went wrong. Please try again.');
     }
 
