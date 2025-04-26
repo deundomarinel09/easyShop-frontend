@@ -12,8 +12,8 @@ const resendOtpEndPoint = '/user/resend-otp';
 // Full URLs
 const signUpUrl = `${BASE}${signUpEndPoint}`;
 const loginUrl = `${BASE}${loginEndPoint}`;
-const verifyOtpUrl = `${testBase}${verifyOtpEndPoint}`;
-const resendOtpUrl = `${testBase}${resendOtpEndPoint}`;
+const verifyOtpUrl = `${BASE}${verifyOtpEndPoint}`;
+const resendOtpUrl = `${BASE}${resendOtpEndPoint}`;
 
 // Verify OTP
 export const verifyOtp = async (email, otp) => {
