@@ -14,16 +14,26 @@ export default function Cart() {
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const handleInputChange = (id, value, stock) => {
-    // Allow empty input for smooth typing
     if (value === "" || /^[0-9\b]+$/.test(value)) {
-      setInputValues((prev) => ({ ...prev, [id]: value }));
-
-      const parsed = parseInt(value, 10);
-      if (!isNaN(parsed) && parsed > 0 && parsed <= stock) {
+      let parsed = parseInt(value, 10);
+  
+      // If parsed is a number
+      if (!isNaN(parsed)) {
+        if (parsed > stock) {
+          parsed = stock; // Cap it at stock
+        } else if (parsed < 1) {
+          parsed = 1; // Minimum quantity is 1
+        }
+  
+        setInputValues((prev) => ({ ...prev, [id]: parsed.toString() }));
         updateQuantity(id, parsed);
+      } else {
+        // Allow empty string for typing
+        setInputValues((prev) => ({ ...prev, [id]: value }));
       }
     }
   };
+  
 
   if (cart.length === 0) {
     return (
