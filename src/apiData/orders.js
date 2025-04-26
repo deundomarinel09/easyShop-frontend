@@ -1,7 +1,7 @@
 // src/api/orderApi.js
 import axios from 'axios';
 
-//const baseLocal = 'https://localhost:7066';
+const baseLocal = 'https://localhost:7066';
 const baseProd = 'https://mobileeasyshop.onrender.com';
 const fetchOrdersUrl = '/api/Order/GetOrderById';
 

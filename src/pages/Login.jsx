@@ -7,18 +7,32 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
   const { login } = useAuth();
-  const navigate = useNavigate(); // Hook for programmatic navigation
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const success = await login(email, password);
-    if (!success) {
-      setError('Invalid credentials');
-    } else {
-      navigate('/'); // Redirect to home page on successful login
+    setError('');
+
+    try {
+      const response = await login(email, password);
+      if (response?.success) {
+        if (response?.step === 'otp') {
+          // OTP required, redirect to OTP page
+          navigate('/otp');
+        } else {
+          // Login complete, no OTP needed
+          navigate('/');
+        }
+      } else {
+        setError('Invalid credentials.');
+      }
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
     }
+
     setLoading(false);
   };
 
@@ -57,13 +71,15 @@ export default function Login() {
             required
           />
         </div>
+
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-          disabled={loading} // Disable button while loading
+          disabled={loading}
         >
           {loading ? 'Logging in...' : 'Login'}
         </button>
+
         <p className="mt-4 text-center text-gray-600">
           Don't have an account?{' '}
           <Link to="/signup" className="text-blue-600 hover:text-blue-800">

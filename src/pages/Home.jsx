@@ -1,11 +1,16 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/mariton.jpg';
 
 export default function Home() {
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+  }, []);
+
   return (
     <div
       className="relative text-center min-h-[80vh] bg-contain bg-center bg-no-repeat flex items-center justify-center"
-      style={{ backgroundImage: `url(${backgroundImage})` }} // optional: light background
+      style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       {/* Content Overlay */}
       <div className="bg-black bg-opacity-50 p-8 rounded-lg max-w-2xl mx-auto text-white flex flex-col items-center">

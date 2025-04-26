@@ -4,23 +4,35 @@ import { useAuth } from "../context/AuthContext";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import axios from "axios";
 import * as Yup from "yup";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { fetchUser } from "../apiData/user";
 
 export default function Checkout() {
   const { cart, clearCart } = useCart();
-  const { user } = useAuth(); // assumes user object has `id`
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [fullUser, setFullUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const initialValues = {
-    name: "",
-    email: "",
-    address: "",
-    city: "",
-    phone: "",
-  };
+  useEffect(() => {
+    const getUserDetails = async () => {
+      if (user?.email) {
+        const { user: fetchedUser, error } = await fetchUser(user.email);
+        if (error) {
+          setError('Failed to fetch user.');
+        } else {
+          setFullUser(fetchedUser);
+        }
+      }
+      setLoadingUser(false);
+    };
+  
+    getUserDetails();
+  }, [user]);
+  
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Required"),
@@ -34,27 +46,26 @@ export default function Checkout() {
     setSubmitting(true);
     const shippingAddress = `${values.address}, ${values.city}`;
 
-    const orderPayload = {
-      userId: user?.id,
-      shippingAddress,
-      email: values.email,
-      name: values.name,
-      phoneNo: values.phone,
-      status: "Pending",
-      total: total.toFixed(2),
-      items: cart.map((item) => ({
-        productId: item.id,
-        amount: item.price,
-        quantity: item.quantity,
-      })),
-    };
-
     try {
-      const baseProd = "https://mobileeasyshop.onrender.com";
-      const response = await axios.post(
-        `${baseProd}/api/Order/PlaceOrder`,
-        orderPayload
-      );
+      const orderPayload = {
+        userId: fullUser.id,
+        shippingAddress,
+        email: fullUser.email,
+        name: values.name,
+        phoneNo: values.phone,
+        status: "Pending",
+        total: total.toFixed(2),
+        items: cart.map((item) => ({
+          productId: item.id,
+          amount: item.price,
+          quantity: item.quantity,
+        })),
+      };
+
+      const test = "https://localhost:7066";
+      const baseProd = 'https://mobileeasyshop.onrender.com';
+      
+      await axios.post(`${baseProd}/api/Order/PlaceOrder`, orderPayload);
 
       alert("Order placed successfully!");
       clearCart();
@@ -64,6 +75,18 @@ export default function Checkout() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  if (loadingUser || !fullUser) {
+    return <div className="text-center py-10">Loading user details...</div>;
+  }
+
+  const initialValues = {
+    name: `${fullUser.lastname}, ${fullUser.firstname}`,
+    email: fullUser.email,
+    address: "",
+    city: "",
+    phone: fullUser.phonenumber,
   };
 
   return (
@@ -89,7 +112,7 @@ export default function Checkout() {
         </div>
       </div>
 
-      {/* Formik Shipping Form */}
+      {/* Shipping Form */}
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -98,8 +121,8 @@ export default function Checkout() {
         {() => (
           <Form className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-xl font-semibold mb-6">Shipping Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-1">
                 <label className="block mb-1 text-gray-700">Full Name</label>
                 <Field
                   name="name"
@@ -111,7 +134,19 @@ export default function Checkout() {
                   className="text-red-500 text-sm"
                 />
               </div>
-              <div>
+              <div className="md:col-span-1">
+                <label className="block mb-1 text-gray-700">Phone</label>
+                <Field
+                  name="phone"
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
+                <ErrorMessage
+                  name="phone"
+                  component="div"
+                  className="text-red-500 text-sm"
+                />
+              </div>
+              <div className="md:col-span-1">
                 <label className="block mb-1 text-gray-700">Email</label>
                 <Field
                   name="email"
@@ -124,23 +159,15 @@ export default function Checkout() {
                   className="text-red-500 text-sm"
                 />
               </div>
-              <div>
-                <label className="block mb-1 text-gray-700">Phone</label>
-                <Field
-                  name="phone"
-                  className="w-full px-3 py-2 border rounded-lg"
-                />
-                <ErrorMessage
-                  name="phone"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block mb-1 text-gray-700">Address</label>
+
+              <div className="md:col-span-2">
+                <label className="block mb-1 text-gray-700">
+                  Street and Barangay
+                </label>
                 <Field
                   as="textarea"
                   name="address"
+                  placeholder="e.g. 123 Mango St., Brgy. Maligaya"
                   className="w-full px-3 py-2 border rounded-lg"
                 />
                 <ErrorMessage
@@ -149,7 +176,8 @@ export default function Checkout() {
                   className="text-red-500 text-sm"
                 />
               </div>
-              <div>
+
+              <div className="md:col-span-1">
                 <label className="block mb-1 text-gray-700">City</label>
                 <Field
                   name="city"

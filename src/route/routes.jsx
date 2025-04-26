@@ -1,3 +1,4 @@
+//routes.jsx
 import {
     createBrowserRouter,
     Navigate
@@ -15,6 +16,7 @@ import {
   import AdminRoute from "../components/AdminRoute";
   import NotFound from "../pages/NotFound"; // 404 Page
   import Orders from "../pages/Orders";
+  import Otp from "../pages/OtpVerification";
   
   const router = createBrowserRouter([
     {
@@ -24,6 +26,7 @@ import {
         { path: "/", element: <Home /> },
         { path: "login", element: <Login /> },
         { path: "signup", element: <Signup /> },
+        {path: "otp", element: <Otp />},
         {
           path: "products",
           element: (

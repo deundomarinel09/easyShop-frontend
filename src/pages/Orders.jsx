@@ -1,6 +1,9 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { fetchOrders } from '../apiData/orders';
+import { fetchUser } from '../apiData/user';
+import { useAuth } from '../context/AuthContext';
 import { CheckCircle, Package, TruckIcon, Clock, XCircle } from 'lucide-react';
+import { cancelOrder as cancelOrderApi } from '../apiData/cancelOrder';
 
 function getStatusIcon(status) {
   switch (status) {
@@ -20,40 +23,46 @@ function getStatusIcon(status) {
 }
 
 export default function Orders() {
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [user, setUser] = useState(null);
+  const [fullUser, setFullUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const [filter, setFilter] = useState('All');
-  
-  // Ref to keep track of previous orders to compare
+  const [cancelModal, setCancelModal] = useState({ show: false, orderId: null });
+  const [cancelReason, setCancelReason] = useState('');
   const prevOrdersRef = useRef([]);
-  
+
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    if (storedUser) {
-      setUser(storedUser);
-    } else {
-      setError('User not logged in');
-      setLoading(false);
-    }
-  }, []);
-  
+    const getUserDetails = async () => {
+      if (user?.email) {
+        const { user: fetchedUser, error } = await fetchUser(user.email);
+        if (error) {
+          alert("Failed to fetch user:", error);
+        } else {
+          setFullUser(fetchedUser);
+        }
+      }
+      setLoadingUser(false);
+    };
+
+    getUserDetails();
+  }, [user]);
+
   useEffect(() => {
-    if (!user) return;
+    if (!fullUser) return;
 
     let intervalId;
 
     const fetchOrdersData = async () => {
-      const { orders: fetchedOrders, error: fetchError } = await fetchOrders(user.id);
-
+      const { orders: fetchedOrders, error: fetchError } = await fetchOrders(fullUser.id);
       if (fetchError) {
         setError(fetchError);
       } else {
-        // Compare fetched orders with previous orders to prevent unnecessary updates
         if (!areOrdersEqual(prevOrdersRef.current, fetchedOrders)) {
           setOrders(fetchedOrders);
-          prevOrdersRef.current = fetchedOrders; // Update the reference for next comparison
+          prevOrdersRef.current = fetchedOrders;
         }
       }
 
@@ -64,12 +73,32 @@ export default function Orders() {
     intervalId = setInterval(fetchOrdersData, 10000);
 
     return () => clearInterval(intervalId);
-  }, [user]);
+  }, [fullUser]);
 
   const filteredOrders = useMemo(() => {
     if (filter === 'All') return orders;
     return orders.filter((order) => order.status === filter);
   }, [orders, filter]);
+
+  const handleCancelOrder = async () => {
+    const { success, error } = await cancelOrderApi(cancelModal.orderId, cancelReason);
+  
+    if (!success) {
+      setError(error);
+      return;
+    }
+  
+    const { orders: updatedOrders, error: fetchError } = await fetchOrders(fullUser.id);
+    if (fetchError) {
+      setError(fetchError);
+    } else {
+      setOrders(updatedOrders);
+      prevOrdersRef.current = updatedOrders;
+    }
+  
+    setCancelModal({ show: false, orderId: null });
+    setCancelReason('');
+  };
 
   const renderOrders = (ordersList) =>
     ordersList.length > 0 ? (
@@ -86,21 +115,21 @@ export default function Orders() {
                 {order.status}
               </span>
             </div>
-
+  
             <div className="grid sm:grid-cols-2 gap-4 mb-4">
               <div>
                 <div className="text-gray-600 font-medium">Total:</div>
                 <div className="text-lg font-bold text-blue-600">₱ {order.total.toFixed(2)}</div>
               </div>
               <div>
-                <div className="text-gray-600 font-medium">Shipping To Details:</div>
+                <div className="text-gray-600 font-medium">Shipping To:</div>
                 <div className="text-gray-800">
                   <div>NAME: {order.name}</div>
                   <div>ADDRESS: {order.shippingAddress}</div>
                 </div>
               </div>
             </div>
-
+  
             {order.items?.$values?.length > 0 && (
               <div className="mt-4">
                 <h4 className="font-semibold text-gray-800 mb-2">Items:</h4>
@@ -119,12 +148,34 @@ export default function Orders() {
                 </ul>
               </div>
             )}
+  
+            {/* Show cancel reason if order is cancelled */}
+            {order.status === 'Cancelled' && order.cancelReason && (
+              <div className="mt-4 text-red-600 font-semibold">
+                <h4 className="text-sm">Cancellation Reason:</h4>
+                <p>{order.cancelReason}</p>
+              </div>
+            )}
+  
+            {order.status === 'Pending' && (
+              <div className="text-right mt-4">
+                <button
+                  onClick={() =>
+                    setCancelModal({ show: true, orderId: order.orderRef })
+                  }
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded"
+                >
+                  Cancel Order
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
     ) : (
       <p className="text-center text-gray-700">No orders found for this status.</p>
     );
+  
 
   const statusFilters = ['All', 'Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled'];
 
@@ -132,7 +183,7 @@ export default function Orders() {
     <div className="max-w-5xl mx-auto p-6">
       <h2 className="text-4xl font-bold text-center mb-10">Your Orders</h2>
 
-      {loading ? (
+      {loadingUser || loading ? (
         <p className="text-center text-gray-500">Loading orders...</p>
       ) : error ? (
         <p className="text-center text-red-600">{error}</p>
@@ -157,6 +208,40 @@ export default function Orders() {
 
           {renderOrders(filteredOrders)}
         </>
+      )}
+
+      {/* Cancel Modal */}
+      {cancelModal.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4">Cancel Order</h3>
+            <label className="block mb-2 font-medium text-gray-700">
+              Reason for cancellation:
+            </label>
+            <textarea
+              rows={4}
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md mb-4"
+              placeholder="Enter your reason..."
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setCancelModal({ show: false, orderId: null })}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCancelOrder}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                disabled={!cancelReason.trim()}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

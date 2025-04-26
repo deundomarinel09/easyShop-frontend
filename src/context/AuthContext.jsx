@@ -1,3 +1,4 @@
+//AuthContext.jsx
 import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext'; // Import useCart to access the clearCart function
@@ -18,44 +19,62 @@ export function AuthProvider({ children }) {
     try {
       const res = await fetchLogin({ email, password });
       const userData = res.data;
-
-      // Store full user data in localStorage
+  
+      // Check if the server is requesting OTP verification
+      if (userData?.message === "OTP sent to email.") {
+        setUser({ email, isOtpRequired: true }); // Set OTP required flag
+        localStorage.setItem('user', JSON.stringify({ email, isOtpRequired: true }));
+        return { success: true, step: "otp" }; // Redirect to OTP page
+      }
+  
+      // Otherwise, proceed with normal login
       const fullUserData = {
         id: userData.id,
         name: userData.name,
         email: userData.email,
         role: userData.role,
+        isOtpRequired: false, // No OTP needed
       };
-
+  
       setUser(fullUserData);
       localStorage.setItem('user', JSON.stringify(fullUserData));
       navigate('/');  // Redirect after successful login
-      return true;
+      return { success: true }; // Successful login without OTP
     } catch (err) {
-      return false;
+      return { success: false };
     }
   };
+  
+  
 
-  const signup = async (email, password) => {
+  const signup = async (email, password, firstName, lastName, phoneNumber) => {
     try {
       const newUser = {
-        name: email.split('@')[0],  // Just an example of setting name
         email,
         passwordhash: password,
+        firstname: firstName,
+        lastname: lastName,
+        phonenumber: phoneNumber,
         createdate: new Date().toISOString(),
-        role: "user",  // Default role, modify as needed
+        role: "user",
       };
-
+  
       const res = await fetchCreateAccount(newUser);
       const userData = res.data;
-
-      navigate('/login');  // Redirect after successful sign up
+  
+      navigate('/login');
       return { success: true };
     } catch (err) {
-      const errorMsg = err.response?.data || err.message || 'SignUp failed.';
+      const errorMsg =
+        err.response?.data?.title ||
+        err.response?.data?.message ||
+        err.message ||
+        'SignUp failed.';
       return { success: false, message: errorMsg };
     }
   };
+  
+  
 
   const logout = () => {
     setUser(null);

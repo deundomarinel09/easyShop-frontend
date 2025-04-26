@@ -31,10 +31,10 @@ export default function Products() {
             sessionStorage.setItem('productsData', JSON.stringify(newProducts));
           }
         } else {
-          console.error('API response is not in the expected format:', data);
+          alert('API response is not in the expected format:', data);
         }
       } catch (error) {
-        console.error('Error fetching products:', error);
+        alert('Error fetching products:', error);
       } finally {
         setLoading(false);
       }
