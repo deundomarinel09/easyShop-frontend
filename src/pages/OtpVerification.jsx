@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { verifyOtp } from '../apiData/login';
+import { verifyOtp, resendOtp } from '../apiData/login'; // Ensure you import resendOtp
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 
@@ -8,6 +8,7 @@ export default function OtpVerification() {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [otpResent, setOtpResent] = useState(false); // State to track OTP resend
   const { user, setUser } = useAuth(); // Extract setUser from context
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,6 +46,26 @@ export default function OtpVerification() {
     setLoading(false);
   };
 
+  const handleResendOtp = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await resendOtp(passedEmail);
+
+      if (res?.message === "OTP resent successfully.") {
+        setOtpResent(true);
+        setError('');
+      } else {
+        setError(res?.message || 'Failed to resend OTP.');
+      }
+    } catch (err) {
+      setError('Failed to resend OTP.');
+    }
+
+    setLoading(false);
+  };
+  
   return (
     <div className="max-w-md mx-auto mt-10">
       <h2 className="text-3xl font-bold mb-6 text-center">Enter OTP</h2>
@@ -76,6 +97,22 @@ export default function OtpVerification() {
         >
           {loading ? 'Verifying...' : 'Verify OTP'}
         </button>
+
+        {/* Resend OTP Button */}
+        <button
+          type="button"
+          onClick={handleResendOtp}
+          className="w-full bg-gray-600 text-white py-2 rounded-lg mt-4 hover:bg-gray-700"
+          disabled={loading}
+        >
+          {loading ? 'Resending...' : 'Resend OTP'}
+        </button>
+
+        {otpResent && (
+          <div className="text-green-600 mt-2">
+            OTP resent successfully! Please check your email.
+          </div>
+        )}
       </form>
     </div>
   );
