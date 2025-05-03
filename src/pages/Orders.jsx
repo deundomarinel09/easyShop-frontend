@@ -118,8 +118,10 @@ export default function Orders() {
   
             <div className="grid sm:grid-cols-2 gap-4 mb-4">
               <div>
-                <div className="text-gray-600 font-medium">Total:</div>
+                <div className="text-gray-600 font-medium">Items Total:</div>
                 <div className="text-lg font-bold text-blue-600">₱ {order.total.toFixed(2)}</div>
+                <div className="text-gray-600 font-medium">Shipping Fee:</div>
+                <div className="text-lg font-bold text-blue-600">₱ {order.shippingFee?.toFixed(2)}</div>
               </div>
               <div>
                 <div className="text-gray-600 font-medium">Shipping To:</div>
@@ -129,7 +131,14 @@ export default function Orders() {
                 </div>
               </div>
             </div>
-  
+
+            <div>
+  <div className="text-gray-600 font-medium">Grand Total:</div>
+  <div className="text-lg font-bold text-blue-600">
+    ₱ {(Number(order.total ?? 0) + Number(order.shippingFee ?? 0)).toFixed(2)}
+  </div>
+</div>
+
             {order.items?.$values?.length > 0 && (
               <div className="mt-4">
                 <h4 className="font-semibold text-gray-800 mb-2">Items:</h4>
