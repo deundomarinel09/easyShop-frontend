@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import {  } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/mariton.jpg';
 
 export default function Home() {
