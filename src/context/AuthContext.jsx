@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import {  } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext'; // Import useCart to access the clearCart function
 import { fetchLogin, fetchCreateAccount } from '../apiData/login'; // adjust path if needed
 
