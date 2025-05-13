@@ -31,10 +31,11 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`bg-white shadow-md border-b sticky top-0 z-50 transition-transform duration-300 ${
-        showNavbar ? "translate-y-0" : "-translate-y-full"
-      }`}
-    >
+    className={`bg-gradient-to-r from-red-500 via-white to-blue-500 bg-[length:300%_300%] animate-gradient-x shadow-md border-b sticky top-0 z-50 transition-transform duration-300 ${
+      showNavbar ? "translate-y-0" : "-translate-y-full"
+    }`}
+  >
+  
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Brand Name */}
