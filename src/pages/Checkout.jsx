@@ -38,7 +38,7 @@ export default function Checkout() {
     name: Yup.string().required("Required"),
     email: Yup.string().email("Invalid email").required("Required"),
     address: Yup.string().required("Required"),
-    city: Yup.string().required("Required"),
+    // city: Yup.string().required("Required"),
     phone: Yup.string().required("Required"),
   });
 
@@ -162,7 +162,7 @@ export default function Checkout() {
 
               <div className="md:col-span-2">
                 <label className="block mb-1 text-gray-700">
-                  Street and Barangay
+                  Address
                 </label>
                 <Field
                   as="textarea"
@@ -177,7 +177,7 @@ export default function Checkout() {
                 />
               </div>
 
-              <div className="md:col-span-1">
+              {/* <div className="md:col-span-1">
                 <label className="block mb-1 text-gray-700">City</label>
                 <Field
                   name="city"
@@ -188,7 +188,7 @@ export default function Checkout() {
                   component="div"
                   className="text-red-500 text-sm"
                 />
-              </div>
+              </div> */}
             </div>
 
             <button
