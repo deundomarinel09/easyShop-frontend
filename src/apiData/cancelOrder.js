@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const BASE = 'https://mobileeasyshop.onrender.com/api';
-
+//for local testing
 const testBase = 'https://localhost:7066/api';
 const cancelEndpoint = '/Order/CancelOrder';
 
