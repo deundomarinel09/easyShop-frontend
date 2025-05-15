@@ -27,7 +27,7 @@ const tuguegaraoStrictBounds = [
 ];
 
 // 📍 CVMC hospital location
-const STORE_LOCATION = { lat: 17.7032, lng: 121.7533 };
+const STORE_LOCATION = { lat: 17.65606, lng: 121.74511 };
 // 📦 Reverse geocode using Nominatim
 async function reverseGeocode(lat, lng) {
   const res = await fetch(
@@ -199,35 +199,62 @@ function RouteControl({ start, end }) {
   
 
 // 📍 Main Map Picker
+// 📍 Main Map Picker
 export default function MapPicker({
-  location,
-  setLocation,
-  setFieldValue,
-  storeLocation,
-}) {
-  return (
-    <MapContainer
-    center={[STORE_LOCATION.lat, STORE_LOCATION.lng]}
-    zoom={14}
-      style={{ height: "300px", width: "100%", borderRadius: "10px" }}
-      maxBounds={mapVisualBounds}
-      maxBoundsViscosity={1.0}
-      scrollWheelZoom={true}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
-      <SearchControl setLocation={setLocation} setFieldValue={setFieldValue} />
-      <ClickHandler setLocation={setLocation} setFieldValue={setFieldValue} />
-
-      <LocationMarker location={location} />
-      <StoreMarker storeLocation={STORE_LOCATION} />
-
-      {/* Add route if both points exist */}
-      {location && <RouteControl start={STORE_LOCATION} end={location} />}
-          
-    </MapContainer>
-  );
-}
+    location,
+    setLocation,
+    setFieldValue,
+    storeLocation,
+  }) {
+    useEffect(() => {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+  
+          const margin = 0.002;
+          const isInside =
+            lat >= tuguegaraoStrictBounds[0][0] - margin &&
+            lat <= tuguegaraoStrictBounds[1][0] + margin &&
+            lng >= tuguegaraoStrictBounds[0][1] - margin &&
+            lng <= tuguegaraoStrictBounds[1][1] + margin;
+  
+          if (!isInside) return;
+  
+          const addressData = await reverseGeocode(lat, lng);
+          const formattedAddress = `${addressData.display_name || ""} (Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)})`;
+  
+          setLocation({ lat, lng });
+          setFieldValue("address", formattedAddress);
+        },
+        (error) => {
+          console.warn("Geolocation error:", error.message);
+        }
+      );
+    }, [setLocation, setFieldValue]);
+  
+    return (
+      <MapContainer
+        center={[STORE_LOCATION.lat, STORE_LOCATION.lng]}
+        zoom={14}
+        style={{ height: "300px", width: "100%", borderRadius: "10px" }}
+        maxBounds={mapVisualBounds}
+        maxBoundsViscosity={1.0}
+        scrollWheelZoom={true}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+  
+        <SearchControl setLocation={setLocation} setFieldValue={setFieldValue} />
+        <ClickHandler setLocation={setLocation} setFieldValue={setFieldValue} />
+  
+        <LocationMarker location={location} />
+        <StoreMarker storeLocation={STORE_LOCATION} />
+  
+        {location && <RouteControl start={STORE_LOCATION} end={location} />}
+      </MapContainer>
+    );
+  }
+  
