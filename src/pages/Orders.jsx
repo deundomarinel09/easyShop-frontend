@@ -4,6 +4,8 @@ import { fetchUser } from '../apiData/user';
 import { useAuth } from '../context/AuthContext';
 import { CheckCircle, Package, TruckIcon, Clock, XCircle } from 'lucide-react';
 import { cancelOrder as cancelOrderApi } from '../apiData/cancelOrder';
+import { useCart } from '../context/CartContext';
+import { useNavigate } from 'react-router-dom';
 
 function getStatusIcon(status) {
   switch (status) {
@@ -23,6 +25,9 @@ function getStatusIcon(status) {
 }
 
 export default function Orders() {
+  const { addToCart, clearCart } = useCart();
+  const navigate = useNavigate();
+
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,6 +105,19 @@ export default function Orders() {
     setCancelReason('');
   };
 
+  const handleReorder = (order) => {
+    clearCart();
+    order.items.$values.forEach(item => {
+      addToCart({
+        id: item.productId,
+        name: item.product,
+        price: item.amount,
+        quantity: item.quantity,
+      });
+    });
+    navigate('/cart'); // or navigate('/checkout');
+  };
+
   const renderOrders = (ordersList) =>
     ordersList.length > 0 ? (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -133,11 +151,11 @@ export default function Orders() {
             </div>
 
             <div>
-  <div className="text-gray-600 font-medium">Grand Total:</div>
-  <div className="text-lg font-bold text-blue-600">
-    ₱ {(Number(order.total ?? 0) + Number(order.shippingFee ?? 0)).toFixed(2)}
-  </div>
-</div>
+              <div className="text-gray-600 font-medium">Grand Total:</div>
+              <div className="text-lg font-bold text-blue-600">
+                ₱ {(Number(order.total ?? 0) + Number(order.shippingFee ?? 0)).toFixed(2)}
+              </div>
+            </div>
 
             {order.items?.$values?.length > 0 && (
               <div className="mt-4">
@@ -165,9 +183,10 @@ export default function Orders() {
                 <p>{order.cancelReason}</p>
               </div>
             )}
-  
-            {order.status === 'Pending' && (
-              <div className="text-right mt-4">
+
+            {/* Buttons */}
+            <div className="text-right mt-4 space-x-2">
+              {order.status === 'Pending' && (
                 <button
                   onClick={() =>
                     setCancelModal({ show: true, orderId: order.orderRef })
@@ -176,15 +195,23 @@ export default function Orders() {
                 >
                   Cancel Order
                 </button>
-              </div>
-            )}
+              )}
+
+              {order.status === 'Completed' && (
+                <button
+                  onClick={() => handleReorder(order)}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded"
+                >
+                  Reorder
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
     ) : (
       <p className="text-center text-gray-700">No orders found for this status.</p>
     );
-  
 
   const statusFilters = ['All', 'Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled'];
 

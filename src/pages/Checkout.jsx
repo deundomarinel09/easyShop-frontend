@@ -65,7 +65,7 @@ export default function Checkout() {
       const test = "https://localhost:7066";
       const baseProd = 'https://mobileeasyshop.onrender.com';
       
-      await axios.post(`${baseProd}/api/Order/PlaceOrder`, orderPayload);
+        await axios.post(`${baseProd}/api/Order/PlaceOrder`, orderPayload);
 
       alert("Order placed successfully!");
       clearCart();
@@ -123,7 +123,7 @@ export default function Checkout() {
             <h3 className="text-xl font-semibold mb-6">Shipping Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-1">
-                <label className="block mb-1 text-gray-700">Full Name</label>
+                <label className="block mb-1 text-gray-700">Full Name<span className="text-red-600">*</span></label>
                 <Field
                   name="name"
                   className="w-full px-3 py-2 border rounded-lg"
@@ -135,7 +135,7 @@ export default function Checkout() {
                 />
               </div>
               <div className="md:col-span-1">
-                <label className="block mb-1 text-gray-700">Phone</label>
+                <label className="block mb-1 text-gray-700">Phone<span className="text-red-600">*</span></label>
                 <Field
                   name="phone"
                   className="w-full px-3 py-2 border rounded-lg"
@@ -147,7 +147,7 @@ export default function Checkout() {
                 />
               </div>
               <div className="md:col-span-1">
-                <label className="block mb-1 text-gray-700">Email</label>
+                <label className="block mb-1 text-gray-700">Email<span className="text-red-600">*</span></label>
                 <Field
                   name="email"
                   type="email"
@@ -162,7 +162,7 @@ export default function Checkout() {
 
               <div className="md:col-span-2">
                 <label className="block mb-1 text-gray-700">
-                  Address
+                  Address<span className="text-red-600">*</span>
                 </label>
                 <Field
                   as="textarea"

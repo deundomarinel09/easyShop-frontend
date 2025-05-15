@@ -58,7 +58,7 @@ export default function Cart() {
               className="flex items-center py-4 border-b last:border-0"
             >
               <img
-                src={imageUrl.replace(".jpg","")}
+                src={imageUrl?.replace(".jpg","")}
                 alt={item.name}
                 className="w-24 h-24 object-cover rounded"
               />

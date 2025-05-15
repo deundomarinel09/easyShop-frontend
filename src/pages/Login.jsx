@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react'; // 👈 Make sure this is installed: `npm install lucide-react`
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -20,9 +22,8 @@ export default function Login() {
       const response = await login(email, password);
       if (response?.success) {
         if (response?.step === 'otp') {
-          // OTP required, redirect to OTP page
-          navigate('/otp', { state: { email } });        } else {
-          // Login complete, no OTP needed
+          navigate('/otp', { state: { email } });
+        } else {
           navigate('/');
         }
       } else {
@@ -57,18 +58,26 @@ export default function Login() {
             required
           />
         </div>
-        <div className="mb-6">
+        <div className="mb-6 relative">
           <label className="block text-gray-700 mb-2" htmlFor="password">
             Password
           </label>
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg"
+            className="w-full px-3 py-2 border rounded-lg pr-10"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute top-9 right-3 text-gray-600"
+            tabIndex={-1}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
         </div>
 
         <button
