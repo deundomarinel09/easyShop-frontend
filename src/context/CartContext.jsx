@@ -4,10 +4,12 @@ const CartContext = createContext();
 
 export const useCart = () => useContext(CartContext);
 
+
 export const CartProvider = ({ children }) => {
   // Load cart from localStorage or set to an empty array if nothing is stored
   const loadCartFromLocalStorage = () => {
     const storedCart = localStorage.getItem('cart');
+    console.log("storedCart",storedCart);
     return storedCart ? JSON.parse(storedCart) : [];
   };
 
