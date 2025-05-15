@@ -8,6 +8,28 @@ import React, { useState, useEffect } from "react";
 import { fetchUser } from "../apiData/user";
 import MapPicker from "./MapPicker";
 
+const STORE_LOCATION = {
+  lat: 17.624218,  // 📍 Latitude
+  lng: 121.727998, // 📍 Longitude
+};
+function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+  const toRad = (val) => (val * Math.PI) / 180;
+  const R = 6371; // Earth's radius in km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function calculateDeliveryFee(distanceInKm) {
+  const distanceInMeters = distanceInKm * 1000;
+  if (distanceInMeters <= 300) return 35;
+  return 35 + Math.floor(distanceInKm) * 10;
+}
+
 export default function Checkout() {
   const [location, setLocation] = useState(null);
   const [autoAddress, setAutoAddress] = useState("");
@@ -17,8 +39,10 @@ export default function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [fullUser, setFullUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [deliveryFee, setDeliveryFee] = useState(0);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const grandTotal = total + deliveryFee;
 
   useEffect(() => {
     const getUserDetails = async () => {
@@ -34,6 +58,22 @@ export default function Checkout() {
     };
     getUserDetails();
   }, [user]);
+
+  // Recalculate delivery fee when location changes
+  useEffect(() => {
+    if (location) {
+      const distance = calculateDistanceKm(
+        STORE_LOCATION.lat,
+        STORE_LOCATION.lng,
+        location.lat,
+        location.lng
+      );
+      const fee = calculateDeliveryFee(distance);
+      setDeliveryFee(fee);
+    } else {
+      setDeliveryFee(0);
+    }
+  }, [location]);
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Required"),
@@ -52,7 +92,8 @@ export default function Checkout() {
         name: values.name,
         phoneNo: values.phone,
         status: "Pending",
-        total: total.toFixed(2),
+        total: grandTotal.toFixed(2),
+        deliveryFee: deliveryFee.toFixed(2),
         location: location ? `${location.lat},${location.lng}` : null,
         items: cart.map((item) => ({
           productId: item.id,
@@ -94,13 +135,19 @@ export default function Checkout() {
         <h3 className="text-xl font-semibold mb-6">Order Summary</h3>
         {cart.map((item) => (
           <div key={item.id} className="flex justify-between mb-4">
-            <span>{item.name} x {item.quantity}</span>
+            <span>
+              {item.name} x {item.quantity}
+            </span>
             <span>php {(item.price * item.quantity).toFixed(2)}</span>
           </div>
         ))}
-        <div className="border-t mt-6 pt-4 flex justify-between font-bold text-lg">
-          <span>Total:</span>
-          <span>php {total.toFixed(2)}</span>
+        <div className="border-t mt-6 pt-4 flex justify-between">
+          <span>Delivery Fee:</span>
+          <span>php {deliveryFee.toFixed(2)}</span>
+        </div>
+        <div className="border-t mt-2 pt-4 flex justify-between font-bold text-lg">
+          <span>Grand Total:</span>
+          <span>php {grandTotal.toFixed(2)}</span>
         </div>
       </div>
 
@@ -112,7 +159,6 @@ export default function Checkout() {
         onSubmit={handleSubmit}
       >
         {({ values, setFieldValue }) => {
-          // Sync autoAddress to Formik's address field
           useEffect(() => {
             if (autoAddress) {
               setFieldValue("address", autoAddress);
@@ -127,22 +173,44 @@ export default function Checkout() {
                   <label className="block mb-1 text-gray-700">
                     Full Name<span className="text-red-600">*</span>
                   </label>
-                  <Field name="name" className="w-full px-3 py-2 border rounded-lg" />
-                  <ErrorMessage name="name" component="div" className="text-red-500 text-sm" />
+                  <Field
+                    name="name"
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <ErrorMessage
+                    name="name"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block mb-1 text-gray-700">
                     Phone<span className="text-red-600">*</span>
                   </label>
-                  <Field name="phone" className="w-full px-3 py-2 border rounded-lg" />
-                  <ErrorMessage name="phone" component="div" className="text-red-500 text-sm" />
+                  <Field
+                    name="phone"
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <ErrorMessage
+                    name="phone"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block mb-1 text-gray-700">
                     Email<span className="text-red-600">*</span>
                   </label>
-                  <Field name="email" type="email" className="w-full px-3 py-2 border rounded-lg" />
-                  <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
+                  <Field
+                    name="email"
+                    type="email"
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
+                  <ErrorMessage
+                    name="email"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
                 </div>
                 <div className="md:col-span-3">
                   <label className="block mb-1 text-gray-700">
@@ -156,21 +224,33 @@ export default function Checkout() {
                     value={values.address}
                     onChange={(e) => setFieldValue("address", e.target.value)}
                   />
-                  <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                  <ErrorMessage
+                    name="address"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
                 </div>
                 <div className="md:col-span-3 mt-4">
-                  <label className="block mb-1 text-gray-700">Pin your location (search or click)</label>
+                  <label className="block mb-1 text-gray-700">
+                    Pin your location (search or click)
+                  </label>
                   <MapPicker
-  location={location}
-  setLocation={setLocation}
-  setFieldValue={setFieldValue}
-/>
+                    location={location}
+                    setLocation={setLocation}
+                    setFieldValue={setFieldValue}
+                    storeLocation={STORE_LOCATION} // pass store location here
+                  />
 
                   {location && (
                     <p className="text-sm mt-2 text-gray-600">
-                      Selected: Latitude {location.lat.toFixed(5)}, Longitude {location.lng.toFixed(5)}
+                      Selected: Latitude {location.lat.toFixed(5)}, Longitude{" "}
+                      {location.lng.toFixed(5)}
                     </p>
                   )}
+
+                  <p className="text-sm mt-1 text-gray-500">
+                    Store Location: Latitude {STORE_LOCATION.lat.toFixed(5)}, Longitude {STORE_LOCATION.lng.toFixed(5)}
+                  </p>
                 </div>
               </div>
 
