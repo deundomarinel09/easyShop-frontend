@@ -123,9 +123,10 @@ export default function Orders() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {ordersList.map((order, index) => (
           <div
-            key={order.orderRef || index}
-            className="border rounded-xl shadow-sm p-6 hover:shadow-md transition bg-white"
-          >
+          key={order.orderRef || index}
+          className="border rounded-xl shadow-sm p-6 hover:shadow-md transition bg-white flex flex-col"
+        >
+        
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-2xl font-semibold">Order #{order.orderRef}</h3>
               <span className="flex items-center px-3 py-1 text-sm rounded-full font-medium bg-gray-100 text-gray-800">
@@ -185,8 +186,8 @@ export default function Orders() {
             )}
 
             {/* Buttons */}
-            <div className="text-right mt-4 space-x-2">
-              {order.status === 'Pending' && (
+            <div className="text-right mt-auto pt-4 space-x-2">
+            {order.status === 'Pending' && (
                 <button
                   onClick={() =>
                     setCancelModal({ show: true, orderId: order.orderRef })
