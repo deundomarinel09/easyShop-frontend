@@ -217,22 +217,25 @@ export default function Products() {
           </span>
         </div>
         <p className="text-gray-600 mb-2">{product.description}</p>
-        <p className="text-gray-600 mb-4">{product.stock} in stock</p>
-
-        <div className="mt-auto pt-2 border-t border-gray-200 flex justify-between items-center">
-          <span className="text-xl font-bold">₱ {product.price}</span>
-          <button
-            onClick={() => handleAddToCart(product)}
-            disabled={isAdded}
-            className={`px-4 py-2 rounded font-medium transition-colors ${
-              isAdded
-                ? 'bg-green-500 text-white cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
-          >
-            {isAdded ? 'Added' : 'Add to Cart'}
-          </button>
-        </div>
+        <div className="mt-auto pt-2 border-t border-gray-200 flex flex-col gap-2">
+       
+        <div className="text-sm text-orange-500 font-semibold">Measurement: {product.measurement}</div>
+        <div className="text-sm text-orange-500 font-semibold">in stock: {product.stock}</div>
+        <div className="flex justify-between items-center">
+    <span className="text-xl font-bold">₱ {product.price}</span>
+    <button
+      onClick={() => handleAddToCart(product)}
+      disabled={isAdded}
+      className={`px-4 py-2 rounded font-medium transition-colors ${
+        isAdded
+          ? 'bg-green-500 text-white cursor-not-allowed'
+          : 'bg-blue-600 text-white hover:bg-blue-700'
+      }`}
+    >
+      {isAdded ? 'Added' : 'Add to Cart'}
+    </button>
+  </div>
+</div>
       </div>
     </div>
   );
