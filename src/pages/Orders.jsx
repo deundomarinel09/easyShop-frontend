@@ -97,7 +97,6 @@ export default function Orders() {
     if (filter === 'All') return orders;
     return orders.filter((order) => order.status === filter);
   }, [orders, filter]);
-console.log("filteredOrders",filteredOrders);
 
   const handleCancelOrder = async () => {
     const reasonToSend =

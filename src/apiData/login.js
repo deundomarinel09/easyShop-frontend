@@ -18,9 +18,7 @@ const resendOtpUrl = `${BASE}${resendOtpEndPoint}`;
 // Verify OTP
 export const verifyOtp = async (email, otp) => {
   try {
-    console.log("email", email);
     const res = await axios.post(verifyOtpUrl, { email, otp });
-    console.log("[verifyOtp] server response:", res.data);
     return res.data;
   } catch (err) {
     console.error("[verifyOtp] error response:", err.response?.data || err.message);
@@ -35,7 +33,6 @@ export const verifyOtp = async (email, otp) => {
 // Resend OTP
 export const resendOtp = async (email) => {
   try {
-    console.log("[resendOtp] Resending OTP for:", email);
     const res = await axios.post(
       resendOtpUrl,
       { email },
@@ -45,7 +42,6 @@ export const resendOtp = async (email) => {
         },
       }
     );
-    console.log("[resendOtp] server response:", res.data);
     return res.data;
   } catch (err) {
     console.error("[resendOtp] error response:", err.response?.data || err.message);
