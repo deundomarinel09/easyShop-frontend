@@ -287,41 +287,45 @@ export default function Orders() {
   <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
     <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full">
       <h3 className="text-xl font-bold mb-4">Cancel Order</h3>
+      
       <label className="block mb-2 font-medium text-gray-700">
-        Reason for cancellation:
+        Reason for cancellation <span className="text-red-500">*</span>
       </label>
       <select
         value={cancelReason}
         onChange={(e) => setCancelReason(e.target.value)}
-        className="w-full p-2 border border-gray-300 rounded-md mb-4"
+        className="w-full p-2 border border-gray-300 rounded-md mb-1"
       >
-        <option value="" disabled>
-          Select a reason
-        </option>
+        <option value="" disabled>Select a reason</option>
         {cancellationReasons.map((reason, idx) => (
-          <option key={idx} value={reason}>
-            {reason}
-          </option>
+          <option key={idx} value={reason}>{reason}</option>
         ))}
       </select>
+
+      {cancelReason === "" && (
+        <p className="text-sm text-red-500 mb-3">Please select a reason.</p>
+      )}
 
       {/* Show textarea only if "Other" is selected */}
       {cancelReason === "Other" && (
         <>
           <label className="block mb-2 font-medium text-gray-700">
-            Please specify:
+            Please specify <span className="text-red-500">*</span>
           </label>
           <textarea
             rows={3}
             value={cancelReasonOther}
             onChange={(e) => setCancelReasonOther(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md mb-4"
+            className="w-full p-2 border border-gray-300 rounded-md mb-1"
             placeholder="Enter your reason..."
           />
+          {cancelReasonOther.trim() === "" && (
+            <p className="text-sm text-red-500 mb-3">This field is required when selecting "Other".</p>
+          )}
         </>
       )}
 
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 mt-4">
         <button
           onClick={() => {
             setCancelModal({ show: false, orderId: null });
@@ -346,6 +350,7 @@ export default function Orders() {
     </div>
   </div>
 )}
+
 
 
     </div>

@@ -10,7 +10,7 @@ const cancelEndpoint = '/Order/CancelOrder';
 export async function cancelOrder(orderId, reason) {
   try {
 
-    const response = await axios.post(`${BASE}${cancelEndpoint}`, {
+    const response = await axios.post(`${testBase}${cancelEndpoint}`, {
       OrderRef: orderId, // sending order reference
       Reason: reason,    // sending cancellation reason
     });
