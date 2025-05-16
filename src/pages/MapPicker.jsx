@@ -154,7 +154,7 @@ function ClickHandler({ setLocation, setFieldValue }) {
       const geo = await reverseGeocode(lat, lng);
       const address = geo.display_name || "";
 
-      if (!address.includes("Tuguegarao")) {
+      if (!address.includes("Tuguegarao") || address.includes("Santiago-Tuguegarao")) {
         alert("The selected location is not inside Tuguegarao City.");
         return;
       }

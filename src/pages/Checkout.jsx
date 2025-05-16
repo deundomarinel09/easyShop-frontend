@@ -9,8 +9,8 @@ import { fetchUser } from "../apiData/user";
 import MapPicker from "./MapPicker";
 
 const STORE_LOCATION = {
-  lat: 17.624218,  // 📍 Latitude
-  lng: 121.727998, // 📍 Longitude
+  lat: 17.65606,  // 📍 Latitude
+  lng: 121.74511, // 📍 Longitude
 };
 function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   const toRad = (val) => (val * Math.PI) / 180;
@@ -102,8 +102,9 @@ export default function Checkout() {
         })),
       };
 
+      const test = "https://localhost:7066";
       const baseProd = "https://mobileeasyshop.onrender.com";
-      await axios.post(`${baseProd}/api/Order/PlaceOrder`, orderPayload);
+        await axios.post(`${baseProd}/api/Order/PlaceOrder`, orderPayload);
 
       alert("Order placed successfully!");
       clearCart();
