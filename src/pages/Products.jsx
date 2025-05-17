@@ -4,6 +4,15 @@ import { getProducts } from '../apiData/products';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+function calculateWeightDeliveryFee(totalWeight) {
+  const baseWeight = 5; // kg free
+  const ratePerExtraKg = 10; // PHP per extra kg
+
+  if (totalWeight <= baseWeight) return 0;
+  const extraWeight = Math.ceil(totalWeight - baseWeight);
+  return extraWeight * ratePerExtraKg;
+}
+
 function SearchableDropdown({ options, value, onChange, label }) {
   const [search, setSearch] = useState('');
   const [filteredOptions, setFilteredOptions] = useState(options);
@@ -27,7 +36,6 @@ function SearchableDropdown({ options, value, onChange, label }) {
         {label}
       </label>
 
-      {/* Show selected value in a readonly input above, click to toggle dropdown */}
       <input
         type="text"
         readOnly
@@ -38,7 +46,6 @@ function SearchableDropdown({ options, value, onChange, label }) {
         aria-expanded={isOpen}
       />
 
-      {/* Search input shown only when dropdown open */}
       {isOpen && (
         <div className="absolute w-full mt-1 bg-white border border-gray-300 rounded shadow-md z-10">
           <input
@@ -83,10 +90,9 @@ function SearchableDropdown({ options, value, onChange, label }) {
   );
 }
 
-
 export default function Products() {
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
   const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [productsData, setProductsData] = useState([]);
@@ -169,6 +175,24 @@ export default function Products() {
     }
   };
 
+  // Calculate total weight of all items in the cart
+  const totalWeight = cart.reduce(
+    (sum, item) => sum + (item.weight || 0) * item.quantity,
+    0
+  );
+
+  // Calculate delivery fee based on weight
+  const deliveryFeeByWeight = calculateWeightDeliveryFee(totalWeight);
+
+  // Calculate subtotal price of cart items
+  const itemsSubtotal = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  // Grand total includes item subtotal + delivery fee
+  const grandTotal = itemsSubtotal + deliveryFeeByWeight;
+
   return (
     <div>
       <h2 className="text-4xl font-extrabold text-center text-gray-800 mb-8">Our Products</h2>
@@ -195,53 +219,80 @@ export default function Products() {
       {loading ? (
         <div>Loading...</div>
       ) : (
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-{filteredProducts.map((product) => {
-  const categoryFolder = normalizeCategoryName(product.categoryName);
-  const imageFile = ensureJpg(product.image);
-  const imageUrl = `${baseUrl}/${imageFile.replace('product-images', '')}`;
-  const isAdded = addedProductIds.includes(product.id);
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {filteredProducts.map((product) => {
+              const categoryFolder = normalizeCategoryName(product.categoryName);
+              const imageFile = ensureJpg(product.image);
+              const imageUrl = `${baseUrl}/${imageFile.replace('product-images', '')}`;
+              const isAdded = addedProductIds.includes(product.id);
 
-  return (
-    <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-      <img
-        src={imageUrl.replace('.jpg', '')}
-        alt={product.name}
-        className="w-full h-48 object-cover"
-      />
-      <div className="p-4 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-semibold">{product.name}</h3>
-          <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded text-sm">
-            {product.category || 'Uncategorized'}
-          </span>
-        </div>
-        <p className="text-gray-600 mb-2">{product.description}</p>
-        <div className="mt-auto pt-2 border-t border-gray-200 flex flex-col gap-2">
-       
-        <div className="text-sm text-orange-500 font-semibold">Measurement: {product.measurement}</div>
-        <div className="text-sm text-orange-500 font-semibold">in stock: {product.stock}</div>
-        <div className="flex justify-between items-center">
-    <span className="text-xl font-bold">₱ {product.price}</span>
-    <button
-      onClick={() => handleAddToCart(product)}
-      disabled={isAdded}
-      className={`px-4 py-2 rounded font-medium transition-colors ${
-        isAdded
-          ? 'bg-green-500 text-white cursor-not-allowed'
-          : 'bg-blue-600 text-white hover:bg-blue-700'
-      }`}
-    >
-      {isAdded ? 'Added' : 'Add to Cart'}
-    </button>
-  </div>
-</div>
-      </div>
-    </div>
-  );
-})}
+              return (
+                <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
+                  <img
+                    src={imageUrl.replace('.jpg', '')}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-4 flex flex-col flex-grow">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-xl font-semibold">{product.name}</h3>
+                      <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded text-sm">
+                        {product.category || 'Uncategorized'}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 mb-2">{product.description}</p>
+                    <div className="mt-auto pt-2 border-t border-gray-200 flex flex-col gap-2">
+                      <div className="text-sm text-orange-500 font-semibold">Measurement: {product.measurement}</div>
+                      <div className="text-sm text-orange-500 font-semibold">Weight(KG): {product.weight}</div>
+                      <div className="text-sm text-orange-500 font-semibold">In stock: {product.stock}</div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xl font-bold">₱ {product.price}</span>
+                        <button
+                          onClick={() => handleAddToCart(product)}
+                          disabled={isAdded}
+                          className={`px-4 py-2 rounded font-medium transition-colors ${
+                            isAdded
+                              ? 'bg-green-500 text-white cursor-not-allowed'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          {isAdded ? 'Added' : 'Add to Cart'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-        </div>
+          {/* Order Summary */}
+          <div className="bg-white rounded-lg shadow-md p-6 mt-10 mb-8 max-w-md mx-auto">
+            <h3 className="text-xl font-semibold mb-6">Order Summary</h3>
+            {cart.length === 0 ? (
+              <p>Your cart is empty</p>
+            ) : (
+              <>
+                {cart.map((item) => (
+                  <div key={item.id} className="flex justify-between mb-4">
+                    <span>
+                      {item.name} x {item.quantity}
+                    </span>
+                    <span>₱ {(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
+                <div className="border-t mt-6 pt-4">
+                  <div>Total Weight: {totalWeight.toFixed(2)} kg</div>
+                  <div>Delivery Fee (Weight-based): ₱{deliveryFeeByWeight.toFixed(2)}</div>
+                  <div className="font-bold text-lg mt-2">
+                    Grand Total: ₱{grandTotal.toFixed(2)}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

@@ -64,9 +64,12 @@ export default function Cart() {
               />
               <div className="flex-1 ml-4">
                 <h3 className="text-lg font-semibold">{item.name}</h3>
-                <p className="text-gray-600">₱ {item.price}</p>
-                <p className="text-gray-600">{item.stock} in stock</p>
-              </div>
+                <p className="text-gray-600">
+  Price: ₱ <span className="text-blue-500">{item.price}</span>
+</p>                <p className="text-gray-600">unit of measurement: <span className="text-blue-500">{item.measurement}</span></p>
+                <p className="text-gray-600">Weight: <span className="text-blue-500">{item.weight}</span></p>
+                <p className="text-orange-500">{item.stock} in stock</p>
+                </div>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => {

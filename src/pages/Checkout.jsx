@@ -30,6 +30,16 @@ function calculateDeliveryFee(distanceInKm) {
   return 35 + Math.floor(distanceInKm) * 10;
 }
 
+// Weight-based delivery fee
+function calculateWeightDeliveryFee(totalWeight) {
+  const baseWeight = 5; // 5 kg free
+  const ratePerExtraKg = 10; // ₱10 per extra kg
+  if (totalWeight <= baseWeight) return 0;
+  const extraWeight = Math.ceil(totalWeight - baseWeight);
+  return extraWeight * ratePerExtraKg;
+}
+
+
 export default function Checkout() {
   const [location, setLocation] = useState(null);
   const [autoAddress, setAutoAddress] = useState("");
@@ -39,10 +49,16 @@ export default function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [fullUser, setFullUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
-  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [distanceDeliveryFee, setDistanceDeliveryFee] = useState(0);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const grandTotal = total + deliveryFee;
+  const totalWeight = cart.reduce((sum, item) => sum + item.weight * item.quantity, 0);
+  const weightDeliveryFee = calculateWeightDeliveryFee(totalWeight);
+  const itemsBaseFee = total;
+
+  // Combine delivery fees (distance + weight + items base)
+  const deliveryFee = distanceDeliveryFee + weightDeliveryFee + itemsBaseFee;
+  const grandTotal = itemsBaseFee + weightDeliveryFee + distanceDeliveryFee;
 
   useEffect(() => {
     const getUserDetails = async () => {
@@ -59,7 +75,6 @@ export default function Checkout() {
     getUserDetails();
   }, [user]);
 
-  // Recalculate delivery fee when location changes
   useEffect(() => {
     if (location) {
       const distance = calculateDistanceKm(
@@ -69,9 +84,9 @@ export default function Checkout() {
         location.lng
       );
       const fee = calculateDeliveryFee(distance);
-      setDeliveryFee(fee);
+      setDistanceDeliveryFee(fee);
     } else {
-      setDeliveryFee(0);
+      setDistanceDeliveryFee(0);
     }
   }, [location]);
 
@@ -92,8 +107,10 @@ export default function Checkout() {
         name: values.name,
         phoneNo: values.phone,
         status: "Pending",
-        total: grandTotal.toFixed(2),
-        deliveryFee: deliveryFee.toFixed(2),
+        distanceDeliveryFee: distanceDeliveryFee.toFixed(2),
+        weightDeliveryFee: weightDeliveryFee.toFixed(2),
+        itemsBaseFee: itemsBaseFee.toFixed(2),
+        grandTotal: grandTotal.toFixed(2),
         location: location ? `${location.lat},${location.lng}` : null,
         items: cart.map((item) => ({
           productId: item.id,
@@ -104,7 +121,7 @@ export default function Checkout() {
 
       const test = "https://localhost:7066";
       const baseProd = "https://mobileeasyshop.onrender.com";
-        await axios.post(`${baseProd}/api/Order/PlaceOrder`, orderPayload);
+      await axios.post(`${test}/api/Order/PlaceOrder`, orderPayload);
 
       alert("Order placed successfully!");
       clearCart();
@@ -119,6 +136,8 @@ export default function Checkout() {
   if (loadingUser || !fullUser) {
     return <div className="text-center py-10">Loading user details...</div>;
   }
+
+  const extraWeight = totalWeight - 5;
 
   const initialValues = {
     name: `${fullUser.lastname}, ${fullUser.firstname}`,
@@ -142,11 +161,32 @@ export default function Checkout() {
             <span>php {(item.price * item.quantity).toFixed(2)}</span>
           </div>
         ))}
-        <div className="border-t mt-6 pt-4 flex justify-between">
-          <span>Delivery Fee:</span>
-          <span>php {deliveryFee.toFixed(2)}</span>
+
+        <div className="border-t mt-6 pt-4">
+          <div className="mb-1 text-left">
+            <span className="font-medium">Total Weight:</span> {totalWeight.toFixed(2)} kg
+          </div>
+          <div className="text-left">
+            <span className="font-medium">Extra Weight:</span> {extraWeight > 0 ? extraWeight.toFixed(2) : 0} kg
+          </div>
         </div>
-        <div className="border-t mt-2 pt-4 flex justify-between font-bold text-lg">
+
+        <div className="border-t mt-6 pt-4">
+          <div className="flex justify-between">
+            <span>Distance-based Delivery Fee:</span>
+            <span>php {distanceDeliveryFee.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between mt-1">
+            <span>Weight-based Delivery Fee:</span>
+            <span>php {weightDeliveryFee.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between mt-1">
+            <span>Items Base Fee:</span>
+            <span>php {itemsBaseFee.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div className="border-t mt-4 pt-4 flex justify-between font-bold text-lg">
           <span>Grand Total:</span>
           <span>php {grandTotal.toFixed(2)}</span>
         </div>
@@ -239,7 +279,7 @@ export default function Checkout() {
                     location={location}
                     setLocation={setLocation}
                     setFieldValue={setFieldValue}
-                    storeLocation={STORE_LOCATION} // pass store location here
+                    storeLocation={STORE_LOCATION}
                   />
 
                   {location && (
