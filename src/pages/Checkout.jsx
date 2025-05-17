@@ -283,7 +283,7 @@ export default function Checkout() {
                       <Field
                         as="textarea"
                         name="instruction"
-                        placeholder="e.g. Establishment or Markings Near you"
+                        placeholder="Note to Rider e.g. LandMark"
                         className="w-full px-3 py-2 border rounded-lg"
                         value={values.instruction}
                         onChange={(e) =>
@@ -303,7 +303,7 @@ export default function Checkout() {
                     <Field
                       as="textarea"
                       name="address"
-                      placeholder="e.g. 123 Mango St., Brgy. Maligaya"
+                      placeholder="Search or pin location"
                       className="w-full px-3 py-2 border rounded-lg"
                       value={values.address}
                       onChange={(e) => setFieldValue("address", e.target.value)}
