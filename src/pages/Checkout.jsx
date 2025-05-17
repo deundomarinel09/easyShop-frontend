@@ -95,6 +95,7 @@ export default function Checkout() {
     email: Yup.string().email("Invalid email").required("Required"),
     address: Yup.string().required("Required"),
     phone: Yup.string().required("Required"),
+    instruction: Yup.string().required("Required"),
   });
 
   const handleSubmit = async (values) => {
@@ -107,6 +108,7 @@ export default function Checkout() {
         name: values.name,
         phoneNo: values.phone,
         status: "Pending",
+        instruction: values.instruction,
         distanceDeliveryFee: distanceDeliveryFee.toFixed(2),
         weightDeliveryFee: weightDeliveryFee.toFixed(2),
         itemsBaseFee: itemsBaseFee.toFixed(2),
@@ -118,10 +120,9 @@ export default function Checkout() {
           quantity: item.quantity,
         })),
       };
-
       const test = "https://localhost:7066";
       const baseProd = "https://mobileeasyshop.onrender.com";
-      await axios.post(`${baseProd}/api/Order/PlaceOrder`, orderPayload);
+        await axios.post(`${baseProd}/api/Order/PlaceOrder`, orderPayload);
 
       alert("Order placed successfully!");
       clearCart();
@@ -264,12 +265,33 @@ export default function Checkout() {
                     className="w-full px-3 py-2 border rounded-lg"
                     value={values.address}
                     onChange={(e) => setFieldValue("address", e.target.value)}
+                    disabled
                   />
                   <ErrorMessage
                     name="address"
                     component="div"
                     className="text-red-500 text-sm"
                   />
+                </div>
+
+                <div className="md:col-span-3">
+                  <label className="block mb-1 text-gray-700">
+                    Delivery instruction<span className="text-red-600">*</span>
+                  </label>
+                  <Field
+  as="textarea"
+  name="instruction"
+  placeholder="e.g. Establishment or Markings Near you"
+  className="w-full px-3 py-2 border rounded-lg"
+  value={values.instruction}
+  onChange={(e) => setFieldValue("instruction", e.target.value)}
+/>
+<ErrorMessage
+  name="instruction"
+  component="div"
+  className="text-red-500 text-sm"
+/>
+
                 </div>
                 <div className="md:col-span-3 mt-4">
                   <label className="block mb-1 text-gray-700">

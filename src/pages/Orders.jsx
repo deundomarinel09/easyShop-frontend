@@ -104,19 +104,23 @@ export default function Orders() {
   }, [orders, filter]);
 
   const handleCancelOrder = async () => {
+    if (cancelLoading) return; // prevent double click
+    setCancelLoading(true);
+  
     const reasonToSend =
       cancelReason === "Other" ? cancelReasonOther.trim() : cancelReason;
-
+  
     const { success, error } = await cancelOrderApi(
       cancelModal.orderId,
       reasonToSend
     );
-
+  
     if (!success) {
       setError(error);
+      setCancelLoading(false);
       return;
     }
-
+  
     const { orders: updatedOrders, error: fetchError } = await fetchOrders(
       fullUser.id
     );
@@ -126,11 +130,13 @@ export default function Orders() {
       setOrders(updatedOrders);
       prevOrdersRef.current = updatedOrders;
     }
-
+  
     setCancelModal({ show: false, orderId: null });
     setCancelReason("");
     setCancelReasonOther("");
+    setCancelLoading(false);
   };
+  
 
   const handleReorder = (order) => {
     clearCart();
@@ -298,6 +304,9 @@ export default function Orders() {
     "Cancelled",
   ];
 
+  const [cancelLoading, setCancelLoading] = useState(false);
+
+
   return (
     <div className="max-w-7xl mx-auto p-6">
       <h2 className="text-4xl font-bold text-center mb-10">Your Orders</h2>
@@ -392,15 +401,19 @@ export default function Orders() {
                 Cancel
               </button>
               <button
-                onClick={handleCancelOrder}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                disabled={
-                  cancelReason === "" ||
-                  (cancelReason === "Other" && cancelReasonOther.trim() === "")
-                }
-              >
-                Submit
-              </button>
+  onClick={handleCancelOrder}
+  className={`px-4 py-2 text-white rounded ${
+    cancelLoading ? "bg-red-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+  }`}
+  disabled={
+    cancelLoading ||
+    cancelReason === "" ||
+    (cancelReason === "Other" && cancelReasonOther.trim() === "")
+  }
+>
+  {cancelLoading ? "Cancelling..." : "Submit"}
+</button>
+
             </div>
           </div>
         </div>
