@@ -267,31 +267,7 @@ export default function Products() {
             })}
           </div>
 
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-md p-6 mt-10 mb-8 max-w-md mx-auto">
-            <h3 className="text-xl font-semibold mb-6">Order Summary</h3>
-            {cart.length === 0 ? (
-              <p>Your cart is empty</p>
-            ) : (
-              <>
-                {cart.map((item) => (
-                  <div key={item.id} className="flex justify-between mb-4">
-                    <span>
-                      {item.name} x {item.quantity}
-                    </span>
-                    <span>₱ {(item.price * item.quantity).toFixed(2)}</span>
-                  </div>
-                ))}
-                <div className="border-t mt-6 pt-4">
-                  <div>Total Weight: {totalWeight.toFixed(2)} kg</div>
-                  <div>Delivery Fee (Weight-based): ₱{deliveryFeeByWeight.toFixed(2)}</div>
-                  <div className="font-bold text-lg mt-2">
-                    Grand Total: ₱{grandTotal.toFixed(2)}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+         
         </>
       )}
     </div>

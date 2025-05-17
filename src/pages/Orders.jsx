@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { fetchOrders } from "../apiData/orders";
+import { fetchOrders, updateOrderStatus } from "../apiData/orders";
 import { fetchUser } from "../apiData/user";
 import { useAuth } from "../context/AuthContext";
 import { CheckCircle, Package, TruckIcon, Clock, XCircle } from "lucide-react";
@@ -42,6 +42,7 @@ export default function Orders() {
   const [cancelReason, setCancelReason] = useState("");
   const [cancelReasonOther, setCancelReasonOther] = useState("");
   const prevOrdersRef = useRef([]);
+  const [updatingOrders, setUpdatingOrders] = useState([]);
 
   // Fetch full user details on auth user change
   useEffect(() => {
@@ -137,20 +138,79 @@ export default function Orders() {
     setCancelLoading(false);
   };
   
-
-  const handleReorder = (order) => {
+  const handleMarkAsCompleted = async (orderRef) => {
+    if (updatingOrders.includes(orderRef)) return; // prevent double click
+  
+    setUpdatingOrders((prev) => [...prev, orderRef]);
+  
+    try {
+      await updateOrderStatus(orderRef, "Completed");
+  
+      const { orders: updatedOrders, error: fetchError } = await fetchOrders(fullUser.id);
+      if (fetchError) {
+        setError(fetchError);
+      } else {
+        setOrders(updatedOrders);
+        prevOrdersRef.current = updatedOrders;
+      }
+    } catch (err) {
+      alert("Failed to update order status: " + err.message);
+    } finally {
+      setUpdatingOrders((prev) => prev.filter((id) => id !== orderRef));
+    }
+  };
+  
+  const handleReorder = async (order) => {
+    console.log("order", order);
     clearCart();
-    order.items?.$values?.forEach((item) => {
-      addToCart({
-        id: item.productId,
-        name: item.product,
-        price: item.amount,
-        quantity: item.quantity,
-      });
-    });
+  
+    const items = order.items?.$values || [];
+  
+    const baseLocal = "https://localhost:7066";
+    const baseProd = "https://mobileeasyshop.onrender.com";
+    const apiUrl = "/api/Dash/GetProductByIdReorder/";
+    const baseURL = window.location.hostname === "localhost" ? baseLocal : baseProd;
+  
+    const updatedItems = await Promise.all(
+      items.map(async (item) => {
+        try {
+          const res = await fetch(`${baseURL}${apiUrl}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: item.productId }), // or whatever your API expects
+          });
+  
+          if (!res.ok) throw new Error("Failed to fetch product data");
+  
+          const productData = await res.json();
+          console.log("productData", productData);
+  
+          return {
+            id: item.productId,
+            name: productData.name,
+            price: productData.price,
+            quantity: item.quantity,
+            weight: productData.weight,
+            measurement:productData.unit,
+            stock: productData.stock,
+          };
+        } catch (error) {
+          console.error(`Error fetching product ${item.productId}:`, error);
+          return null;
+        }
+      })
+    );
+  
+    updatedItems
+      .filter((item) => item !== null)
+      .forEach((item) => addToCart(item));
+  
     navigate("/cart");
   };
-
+  
+  
   const cancellationReasons = [
     "Changed my mind",
     "Found a better price elsewhere",
@@ -265,27 +325,43 @@ export default function Orders() {
             )}
 
             {/* Buttons */}
-            <div className="text-right mt-auto pt-4 space-x-2">
-              {order.status === "Pending" && (
-                <button
-                  onClick={() =>
-                    setCancelModal({ show: true, orderId: order.orderRef })
-                  }
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded"
-                >
-                  Cancel Order
-                </button>
-              )}
+<div className="text-right mt-auto pt-4 space-x-2">
+  {order.status === "Pending" && (
+    <button
+      onClick={() =>
+        setCancelModal({ show: true, orderId: order.orderRef })
+      }
+      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded"
+    >
+      Cancel Order
+    </button>
+  )}
 
-              {order.status === "Completed" && (
-                <button
-                  onClick={() => handleReorder(order)}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded"
-                >
-                  Reorder
-                </button>
-              )}
-            </div>
+{order.status === "Shipped" && (
+  <button
+    onClick={() => handleMarkAsCompleted(order.orderRef)}
+    disabled={updatingOrders.includes(order.orderRef)}
+    className={`px-4 py-2 text-white text-sm font-medium rounded ${
+      updatingOrders.includes(order.orderRef)
+        ? "bg-green-400 cursor-not-allowed"
+        : "bg-green-600 hover:bg-green-700"
+    }`}
+  >
+    {updatingOrders.includes(order.orderRef) ? "Updating..." : "Order Received"}
+  </button>
+)}
+
+
+  {order.status === "Completed" && (
+    <button
+      onClick={() => handleReorder(order)}
+      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded"
+    >
+      Reorder
+    </button>
+  )}
+</div>
+
           </div>
         ))}
       </div>
