@@ -121,7 +121,7 @@ export default function Checkout() {
 
       const test = "https://localhost:7066";
       const baseProd = "https://mobileeasyshop.onrender.com";
-      await axios.post(`${test}/api/Order/PlaceOrder`, orderPayload);
+      await axios.post(`${baseProd}/api/Order/PlaceOrder`, orderPayload);
 
       alert("Order placed successfully!");
       clearCart();
