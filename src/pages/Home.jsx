@@ -1,32 +1,26 @@
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import backgroundImage from '../assets/mariton.jpg';
+// Home.jsx
+import React from 'react';
+import { Hero } from '../components/Hero';
+import { ProductCarousel } from '../components/ProductCarousel';
+import { Categories } from '../components/Categories';
+import { Promotions } from '../components/Promotions';
+import { Testimonials } from '../components/Testimonials';
+import { Newsletter } from '../components/Newsletter';
 
-export default function Home() {
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-  }, []);
-
+const HomePage = () => {
   return (
-    <div
-      className="relative text-center min-h-[80vh] bg-contain bg-center bg-no-repeat flex items-center justify-center"
-      style={{ backgroundImage: `url(${backgroundImage})` }}
-    >
-      {/* Content Overlay */}
-      <div className="bg-black bg-opacity-50 p-8 rounded-lg max-w-2xl mx-auto text-white flex flex-col items-center">
-        <h1 className="text-5xl font-extrabold mb-6">
-          Welcome to Mariton Grocery
-        </h1>
-        <p className="text-xl mb-8">
-          Discover groceries at amazing prices!
-        </p>
-        <Link
-          to="/products"
-          className="bg-green-600 text-white px-8 py-4 rounded-full hover:bg-green-700 transition-all duration-300 text-lg"
-        >
-          Shop Now
-        </Link>
-      </div>
+    <div>
+      <Hero />
+      <section className="py-16 container mx-auto px-4">
+        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+          Top Selling Products
+        </h2>
+        <ProductCarousel />
+      </section>
+      <Testimonials />
+      <Newsletter />
     </div>
   );
-}
+};
+
+export default HomePage;
