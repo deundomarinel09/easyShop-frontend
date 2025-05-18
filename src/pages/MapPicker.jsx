@@ -73,7 +73,7 @@ function LocationMarker({ location }) {
 function StoreMarker({ storeLocation }) {
   return (
     <Marker position={storeLocation} icon={storeIcon}>
-      <Popup>Paragua Drugstore</Popup>
+      <Popup>XIA Store</Popup>
     </Marker>
   );
 }
