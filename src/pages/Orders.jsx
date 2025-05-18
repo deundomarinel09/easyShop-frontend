@@ -233,8 +233,8 @@ export default function Orders() {
 
   const renderOrders = (ordersList) =>
     ordersList.length > 0 ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {ordersList.map((order, index) => (
+<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6">
+  {ordersList.map((order, index) => (
           <div
             key={order.orderRef || order.id || index}
             className="border rounded-xl shadow-sm p-6 hover:shadow-md transition bg-white flex flex-col"
@@ -298,19 +298,19 @@ export default function Orders() {
                 <h4 className="font-semibold text-gray-800 mb-2">Items:</h4>
                 <ul className="divide-y divide-gray-200">
                   {order.items.$values.map((item, i) => (
-                    <li key={i} className="py-2 flex justify-between">
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {item.product}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          Qty: {item.quantity}
-                        </div>
+                    <li key={i} className="py-2 flex justify-between items-center">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 truncate" title={item.product}>
+                        {item.product}
                       </div>
-                      <div className="text-right text-gray-800 font-semibold">
-                        ₱ {item.amount?.toFixed(2)}
+                      <div className="text-sm text-gray-500">
+                        Qty: {item.quantity}
                       </div>
-                    </li>
+                    </div>
+                    <div className="ml-4 flex-shrink-0 text-right text-gray-800 font-semibold whitespace-nowrap">
+                      ₱ {item.amount?.toFixed(2)}
+                    </div>
+                  </li>
                   ))}
                 </ul>
               </div>
