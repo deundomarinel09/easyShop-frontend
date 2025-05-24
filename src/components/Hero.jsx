@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
+const imagePaths = [
+  '/XIASTORE.jpg',
+  '/store2logo.jpg',
+  '/storelogo.jpg',
+];
+
 export const Hero = () => {
   const navigate = useNavigate();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % imagePaths.length);
+    }, 3000); // 5 seconds
+
+    return () => clearInterval(interval); // Clean up interval on unmount
+  }, []);
 
   return (
     <div className="relative min-h-[600px] flex items-center bg-gradient-to-r from-teal-500 to-teal-600 overflow-hidden pt-20">
@@ -42,7 +57,7 @@ export const Hero = () => {
           <div className="relative hidden lg:block">
             <div className="absolute -top-16 -right-16 w-[500px] h-[500px] bg-amber-300 rounded-full opacity-20"></div>
             <img
-              src="https://images.pexels.com/photos/5704720/pexels-photo-5704720.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+              src={imagePaths[currentImageIndex]}
               alt="Shopping Experience"
               className="relative z-10 rounded-lg shadow-2xl transform -rotate-3 hover:rotate-0 transition-transform duration-500"
             />
@@ -56,7 +71,7 @@ export const Hero = () => {
         </div>
       </div>
 
-      {/* Decorative elements */}
+      {/* Decorative element */}
       <div className="absolute bottom-0 left-0 w-full h-16 bg-white" style={{ clipPath: 'polygon(0 100%, 100% 100%, 100% 0)' }}></div>
     </div>
   );

@@ -9,8 +9,8 @@ import { fetchUser } from "../apiData/user";
 import MapPicker from "./MapPicker";
 
 const STORE_LOCATION = {
-  lat: 17.65606, // 📍 Latitude
-  lng: 121.74511, // 📍 Longitude
+  lat: 17.65280000, // 📍 Latitude
+  lng: 121.69100000, // 📍 Longitude
 };
 function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   const toRad = (val) => (val * Math.PI) / 180;

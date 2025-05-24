@@ -26,6 +26,20 @@ const solanaStrictBounds = [
   [17.800314, 121.743542],
 ];
 
+const solanaViewBox = [
+  solanaStrictBounds[0][1], // left (lng)
+  solanaStrictBounds[1][0], // top (lat)
+  solanaStrictBounds[1][1], // right (lng)
+  solanaStrictBounds[0][0], // bottom (lat)
+].join(",");
+
+const customNominatimGeocoder = L.Control.Geocoder.nominatim({
+  geocodingQueryParams: {
+    viewbox: solanaViewBox,
+    bounded: 1,
+  },
+});
+
 // 📍 Paragua Drugstore store location in Solana
 const STORE_LOCATION = { lat: 17.6528363, lng: 121.6511258 };
 
@@ -89,6 +103,7 @@ function SearchControl({ setLocation, setFieldValue }) {
     }
 
     const geocoder = L.Control.geocoder({
+      geocoder: customNominatimGeocoder,
       defaultMarkGeocode: false,
     })
       .on("markgeocode", async function (e) {
