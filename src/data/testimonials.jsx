@@ -12,7 +12,7 @@ export const testimonials = [
       name: "Michael Chen",
       avatar: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       role: "Tech Enthusiast",
-      content: "The electronics selection at Easy Shop is top-notch. I purchased a pair of noise-cancelling headphones that were delivered promptly and exactly as described. Great experience!",
+      content: " The delivery is good, received the items on time.All items are in good condition and well packaged",
       rating: 4
     },
     {
@@ -20,7 +20,7 @@ export const testimonials = [
       name: "Emma Rodriguez",
       avatar: "https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       role: "Fashion Blogger",
-      content: "As someone who shops for fashion items frequently, I appreciate Easy Shop's curated collection. The quality is excellent and the prices are reasonable. Will definitely be back!",
+      content: "As someone who shops for grocery items frequently, I appreciate Easy Shop's curated collection. The quality is excellent and the prices are reasonable. Will definitely be back!",
       rating: 5
     }
   ];
