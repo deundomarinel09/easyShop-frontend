@@ -68,18 +68,29 @@ export default function Navbar() {
             >
               Products
             </NavLink>
+            {!user && (
+              <>
+            <NavLink
+              to="/login"
+              className={({ isActive }) =>
+                isActive ? activeLinkClass : baseLinkClass
+              }
+            >
+              Login
+            </NavLink>
+</>)}
+            {/* Show cart, email, and logout ONLY if logged in */}
+            {user && (
+              <>
+                  
             <NavLink
               to="/orders"
               className={({ isActive }) =>
                 isActive ? activeLinkClass : baseLinkClass
               }
             >
-              Orders
+              Order
             </NavLink>
-
-            {/* Show cart, email, and logout ONLY if logged in */}
-            {user && (
-              <>
                 <NavLink
                   to="/cart"
                   className={({ isActive }) =>
