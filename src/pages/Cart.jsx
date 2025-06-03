@@ -39,7 +39,7 @@ export default function Cart() {
       const names = outOfStockItems.map((item) => item.name).join(", ");
       outOfStockItems.forEach((item) => removeFromCart(item.id));
       setAutoRemovedMessage(`Removed out-of-stock item(s): ${names}`);
-  
+
       // Wait 2 seconds to show the message before navigating
       setTimeout(() => {
         setAutoRemovedMessage("");
@@ -49,14 +49,14 @@ export default function Cart() {
       navigate("/checkout");
     }
   };
-  
-  
 
   if (cart.length === 0) {
     return (
       <div className="text-center py-8">
         <h2 className="text-2xl font-bold mb-4">Your Cart is Empty</h2>
-        <p className="text-gray-600">Start shopping to add items to your cart!</p>
+        <p className="text-gray-600">
+          Start shopping to add items to your cart!
+        </p>
       </div>
     );
   }
@@ -66,7 +66,20 @@ export default function Cart() {
       <h2 className="text-3xl font-bold mb-8 text-center">Shopping Cart</h2>
       <div className="bg-white rounded-lg shadow-md p-6">
         {cart.map((item) => {
-          const imageUrl = item.image?.replace('product-imagesproduct-images%2F', 'product-images//');
+          const baseUrl =
+            "https://wyzlpxshonuzitdcgdoe.supabase.co/storage/v1/object/public/product-images";
+
+          const getImageFromName = (name) =>
+            `${baseUrl}/${name.replace(/\s+/g, "")}.jpg`;
+
+          const imageUrl =
+            item.image && item.image.trim() !== ""
+              ? item.image.replace(
+                  "product-imagesproduct-images%2F",
+                  "product-images//"
+                )
+              : getImageFromName(item.name);
+
           return (
             <div
               key={item.id}
@@ -83,7 +96,8 @@ export default function Cart() {
                   Price: ₱ <span className="text-blue-500">{item.price}</span>
                 </p>
                 <p className="text-gray-600">
-                  Unit of measurement: <span className="text-blue-500">{item.measurement}</span>
+                  Unit of measurement:{" "}
+                  <span className="text-blue-500">{item.measurement}</span>
                 </p>
                 <p className="text-gray-600">
                   Weight: <span className="text-blue-500">{item.weight}</span>
@@ -149,12 +163,11 @@ export default function Cart() {
           );
         })}
 
-{autoRemovedMessage && (
-  <div className="mb-4 text-yellow-700 text-sm bg-yellow-100 p-3 rounded">
-    {autoRemovedMessage}
-  </div>
-)}
-
+        {autoRemovedMessage && (
+          <div className="mb-4 text-yellow-700 text-sm bg-yellow-100 p-3 rounded">
+            {autoRemovedMessage}
+          </div>
+        )}
 
         <div className="mt-8">
           {stockError && (

@@ -174,7 +174,7 @@ export default function Orders() {
     const updatedItems = await Promise.all(
       items.map(async (item) => {
         try {
-          const res = await fetch(`${baseURL}${apiUrl}`, {
+          const res = await fetch(`${baseProd}${apiUrl}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -207,6 +207,7 @@ export default function Orders() {
       .filter((item) => item !== null)
       .forEach((item) => addToCart(item));
   
+      console.log("updatedItems",updatedItems);
     navigate("/cart");
   };
   
