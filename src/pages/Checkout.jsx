@@ -69,7 +69,7 @@ const uomToKg = {
 };
 
 const totalWeight = cart.reduce((sum, item) => {
-  const uom = item.uom.toLowerCase();
+  const uom = item.uom?.toLowerCase();
   const conversionFactor = uomToKg[uom] || 0.001;
   const weightInKg = item.weight * conversionFactor;
   return sum + weightInKg * item.quantity;
