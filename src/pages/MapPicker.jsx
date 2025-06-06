@@ -16,7 +16,7 @@ import "leaflet-routing-machine"; // import routing machine JS
 
 // 📍 Wide bounds for map panning (broader area around Solana)
 const mapVisualBounds = [
-  [17.60, 121.55],
+  [17.6, 121.55],
   [17.82, 121.75],
 ];
 
@@ -223,9 +223,9 @@ export default function MapPicker({ location, setLocation, setFieldValue }) {
         if (!isInside) return;
 
         const addressData = await reverseGeocode(lat, lng);
-        const formattedAddress = `${addressData.display_name || ""} (Lat: ${lat.toFixed(
-          5
-        )}, Lng: ${lng.toFixed(5)})`;
+        const formattedAddress = `${
+          addressData.display_name || ""
+        } (Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)})`;
 
         setLocation({ lat, lng });
         setFieldValue("address", formattedAddress);

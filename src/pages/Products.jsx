@@ -244,7 +244,7 @@ export default function Products() {
                     <p className="text-gray-600 mb-2">{product.description}</p>
                     <div className="mt-auto pt-2 border-t border-gray-200 flex flex-col gap-2">
                       <div className="text-sm text-orange-500 font-semibold">Measurement: {product.measurement}</div>
-                      <div className="text-sm text-orange-500 font-semibold">Weight(KG): {product.weight}</div>
+                      <div className="text-sm text-orange-500 font-semibold">Weight: {product.weight} {product.uom}</div>
                       <div className="text-sm text-orange-500 font-semibold">In stock: {product.stock}</div>
                       <div className="flex justify-between items-center">
                         <span className="text-xl font-bold">₱ {product.price}</span>

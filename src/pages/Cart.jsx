@@ -100,7 +100,7 @@ export default function Cart() {
                   <span className="text-blue-500">{item.measurement}</span>
                 </p>
                 <p className="text-gray-600">
-                  Weight: <span className="text-blue-500">{item.weight}</span>
+                  Weight: <span className="text-blue-500">{item.weight} {item.uom}</span>
                 </p>
                 <p className="text-orange-500">{item.stock} in stock</p>
               </div>
