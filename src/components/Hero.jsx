@@ -61,12 +61,12 @@ export const Hero = () => {
               alt="Shopping Experience"
               className="relative z-10 rounded-lg shadow-2xl transform -rotate-3 hover:rotate-0 transition-transform duration-500"
             />
-            <div className="absolute -bottom-8 -left-8 bg-white/90 backdrop-blur p-4 rounded-lg shadow-xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
+            {/* <div className="absolute -bottom-8 -left-8 bg-white/90 backdrop-blur p-4 rounded-lg shadow-xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
               <div className="flex items-center space-x-2 text-teal-600 font-medium">
                 <span className="text-lg">New Summer Collection</span>
                 <span className="bg-rose-500 text-white text-xs px-2 py-1 rounded-full">HOT</span>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

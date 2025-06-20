@@ -353,7 +353,7 @@ export default function Orders() {
 )}
 
 
-  {order.status === "Completed" && (
+  {(order.status === "Completed" || order.status === "Cancelled") && (
     <button
       onClick={() => handleReorder(order)}
       className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded"

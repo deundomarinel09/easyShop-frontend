@@ -175,18 +175,7 @@ console.log("totalWeight",totalWeight);
     <div className="max-w-10xl mx-auto p-6">
       <div className="flex items-center justify-center mb-10 gap-4">
         <h2 className="text-4xl font-bold">Checkout</h2>
-        <button
-          type="submit"
-          form="checkout-form"
-          className={`py-2 px-4 rounded-lg transition-colors ${
-            submitting
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700 text-white"
-          }`}
-          disabled={submitting}
-        >
-          {submitting ? "Submitting..." : "Place Order (Cash on Delivery)"}
-        </button>
+       
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Order Summary */}
@@ -231,6 +220,21 @@ console.log("totalWeight",totalWeight);
             <span>Grand Total:</span>
             <span>php {grandTotal.toFixed(2)}</span>
           </div>
+                    <div className="border-t mt-4 pt-4 flex justify-end font-bold text-lg">
+
+           <button
+          type="submit"
+          form="checkout-form"
+          className={`mt-28 py-2 px-4 rounded-lg transition-colors ${
+            submitting
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700 text-white"
+          }`}
+          disabled={submitting}
+        >
+          {submitting ? "Submitting..." : "Place Order (Cash on Delivery)"}
+        </button>
+        </div>
         </div>
 
         {/* Shipping Form */}
