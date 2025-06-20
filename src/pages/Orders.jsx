@@ -99,10 +99,19 @@ export default function Orders() {
     };
   }, [fullUser]);
 
-  const filteredOrders = useMemo(() => {
-    if (filter === "All") return orders;
-    return orders.filter((order) => order.status === filter);
-  }, [orders, filter]);
+ const filteredOrders = useMemo(() => {
+  const filtered = filter === "All"
+    ? orders
+    : orders.filter((order) => order.status === filter);
+
+  // Sort by orderRef descending
+  return [...filtered].sort((a, b) =>
+    b.orderRef.localeCompare(a.orderRef) // if `id` is a string (change to `orderRef` if needed)
+  );
+}, [orders, filter]);
+
+
+  console.log("filteredOrders",filteredOrders);
 
   const handleCancelOrder = async () => {
     if (cancelLoading) return; // prevent double click
